@@ -1,550 +1,330 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Portfolio</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/intersection-observer/1.0.0/intersection-observer.min.js"></script>
-    <style>
-        /* Modern CSS Reset */
-        *, *::before, *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        /* Custom Properties */
-        :root {
-            --primary-color: #ffffff;
-            --secondary-color: #64B5F6;
-            --background-color: #121212;
-            --surface-color: #1E1E1E;
-            --text-color: #E0E0E0;
-            --text-secondary: #B0B0B0;
-            --section-padding: 5rem 2rem;
-            --max-width: 1000px;
-        }
-
-        /* Base Styles */
-        html {
-            scroll-behavior: smooth;
-            background-color: var(--background-color);
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            line-height: 1.5;
-            color: var(--text-color);
-            background-color: var(--background-color);
-            font-size: 14px;
-            min-height: 100vh;
-        }
-
-        /* Typography */
-        h1, h2, h3 {
-            line-height: 1.2;
-            margin-bottom: 1rem;
-            color: var(--primary-color);
-            font-weight: 600;
-        }
-
-        h1 {
-            font-size: 2rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        h2 {
-            font-size: 1.5rem;
-            color: var(--secondary-color);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-top: 2rem;
-        }
-
-        /* Layout */
-        .container {
-            max-width: var(--max-width);
-            margin: 0 auto;
-            padding: 0 2rem;
-        }
-
-        section {
-            padding: var(--section-padding);
-            min-height: 100vh;
-            display: flex;
-            align-items: flex-start;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-        }
-
-        section.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* About Section */
-        .about {
-            background-color: var(--surface-color);
-            border-radius: 4px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 4rem;
-            align-items: center;
-        }
-
-        .about-content {
-            max-width: 600px;
-        }
-
-        .profile-image {
-            width: 100%;
-            max-width: 300px;
-            height: auto;
-            border-radius: 4px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-        }
-
-        /* Resume Section */
-        .resume {
-            background-color: var(--background-color);
-        }
-
-        .experience-item {
-            margin-bottom: 1.5rem;
-            padding: 1.5rem;
-            background: var(--surface-color);
-            border-radius: 4px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s ease;
-        }
-
-        .experience-item:hover {
-            transform: translateY(-2px);
-        }
-
-        .experience-list {
-            list-style-type: none;
-            padding-left: 0;
-            margin-top: 0.75rem;
-            color: var(--text-secondary);
-        }
-
-        .experience-list li {
-            position: relative;
-            padding-left: 1rem;
-            margin-bottom: 0.5rem;
-            line-height: 1.4;
-        }
-
-        .experience-list li::before {
-            content: "•";
-            position: absolute;
-            left: 0;
-            color: var(--secondary-color);
-        }
-
-        .skills-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 2rem;
-        }
-
-        .skills-list {
-            list-style-type: none;
-            padding-left: 0;
-            margin-top: 0.75rem;
-            color: var(--text-secondary);
-        }
-
-        .skills-list li {
-            margin-bottom: 0.75rem;
-            line-height: 1.4;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .skill-rating {
-            display: flex;
-            gap: 4px;
-        }
-
-        .skill-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            border: 1px solid var(--secondary-color);
-        }
-
-        .skill-dot.filled {
-            background-color: var(--secondary-color);
-        }
-
-        .skills-category h3 {
-            color: var(--primary-color);
-            font-size: 1rem;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-        }
-
-        .job-title {
-            font-size: 1.1rem;
-            color: var(--primary-color);
-            margin-bottom: 0.25rem;
-        }
-
-        .job-details {
-            font-size: 0.9rem;
-            color: var(--secondary-color);
-            margin-bottom: 0.5rem;
-        }
-
-        /* GitHub Link */
-        /* Social Links */
-        .social-links {
-            position: fixed;
-            top: 2rem;
-            right: 2rem;
-            z-index: 100;
-            display: flex;
-            gap: 1rem;
-        }
-
-        .social-icon {
-            width: 32px;
-            height: 32px;
-            transition: transform 0.2s ease;
-            color: var(--secondary-color);
-            opacity: 0.9;
-        }
-
-        .social-icon:hover {
-            transform: scale(1.1);
-            opacity: 1;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            body {
-                font-size: 15px;
-            }
-
-            .container {
-                padding: 0;
-            }
-
-            section {
-                padding: 2rem 0;
-            }
-
-            .about {
-                grid-template-columns: 1fr;
-                text-align: center;
-                margin: 0;
-                border-radius: 0;
-            }
-
-            .profile-image {
-                margin: 0 auto;
-                max-width: 250px;
-            }
-
-            h1 {
-                font-size: 2rem;
-            }
-
-            h2 {
-                font-size: 1.5rem;
-            }
-
-            .experience-item {
-                margin: 0 0 1rem 0;
-                padding: 1.5rem;
-                border-radius: 0;
-            }
-
-            .skills-grid {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            body {
-                font-size: 14px;
-            }
-
-            section {
-                padding: 1.5rem 0.75rem;
-            }
-
-            .about {
-                padding: 1.5rem 1rem;
-            }
-
-            .experience-item {
-                padding: 1.25rem 1rem;
-            }
-
-            .profile-image {
-                max-width: 200px;
-            }
-
-            .social-links {
-                top: 1rem;
-                right: 1rem;
-            }
-
-            .social-icon {
-                width: 28px;
-                height: 28px;
-            }
-        }
-    </style>
-</head>
-<body>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Faculty+Glyphic&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="index.css" />
+  </head>
+  <body>
     <!-- Social Links -->
     <div class="social-links">
-        <a href="https://github.com/mnstucky" target="_blank" rel="noopener noreferrer">
-            <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-            </svg>
-        </a>
-        <a href="https://www.linkedin.com/in/matt-stucky/" target="_blank" rel="noopener noreferrer">
-            <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
-            </svg>
-        </a>
+      <a
+        href="https://github.com/mnstucky"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor">
+          <path
+            d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
+          />
+        </svg>
+      </a>
+      <a
+        href="https://www.linkedin.com/in/matt-stucky-66166339/"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor">
+          <path
+            d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"
+          />
+        </svg>
+      </a>
     </div>
 
     <!-- About Section -->
     <section id="about" class="visible">
-        <div class="container">
-            <div class="about">
-                <div class="about-content">
-                    <h1>Matt N. Stucky</h1>
-                    <p>Senior software engineer with a proven track record of leading transformative projects in .NET, TypeScript, React, and C. Experienced in spearheading technology adoption, redesigning codebases, and streamlining processes.</p>
-                    <p style="margin-top: 1rem">Currently supervising application development at INTRUST Bank, where I lead a team focused on building innovative solutions for banking technology.</p>
-                </div>
-                <img src="/api/placeholder/400/400" alt="Profile Photo" class="profile-image">
-            </div>
+      <div class="container">
+        <div class="about">
+          <div class="about-content">
+            <h1>Matt N. Stucky</h1>
+            <p>
+              Senior software engineer with a proven track record of leading
+              transformative projects in .NET, TypeScript, React, and C.
+              Experienced in spearheading technology adoption, redesigning
+              codebases, and streamlining processes.
+            </p>
+            <p style="margin-top: 1rem">
+              Currently supervising application development at INTRUST Bank,
+              where I lead a team focused on building innovative solutions for
+              banking technology.
+            </p>
+          </div>
+          <img src="headshot.png" alt="Profile Photo" class="profile-image" />
         </div>
+      </div>
     </section>
+
+    <div class="scroll-arrow">
+      <svg class="scroll-icon" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" />
+      </svg>
+    </div>
 
     <!-- Resume Section -->
     <section id="resume" class="resume">
-        <div class="container">
-            <h2>Experience</h2>
-            <div class="experience-item">
-                <h3 class="job-title">Senior Software Engineer / Supervisor of Application Development</h3>
-                <p class="job-details">INTRUST Bank • 03/2024 - Present • Wichita, KS</p>
-                <ul class="experience-list">
-                    <li>Built a custom CRM system for managing bank products, saving roughly $5 million in development, operational, and licensing costs</li>
-                    <li>Mentored junior engineers, developing best practices in coding, issue tracking, and technology adoption</li>
-                    <li>Starting in 11/2024, supervised a three-person development team</li>
-                </ul>
-            </div>
-            <div class="experience-item">
-                <h3 class="job-title">Developer</h3>
-                <p class="job-details">INTRUST Bank • 07/2022 - 03/2024 • Wichita, KS</p>
-                <ul class="experience-list">
-                    <li>Led the development team's transition from .NET Framework to .NET Core</li>
-                    <li>Created a comprehensive UI component library for .NET Blazor</li>
-                    <li>Designed a backend framework for internal bank applications</li>
-                    <li>Deployed applications to combat check fraud, track employee performance, streamline loan collections, and more</li>
-                    <li>Spearheaded the development team's adoption of GitHub and Scrum</li>
-                </ul>
-            </div>
-            <div class="experience-item">
-                <h3 class="job-title">Junior Software Engineer</h3>
-                <p class="job-details">LP Technologies • 06/2021 - 07/2022 • Wichita, KS</p>
-                <ul class="experience-list">
-                    <li>Designed, implemented, and deployed an inventory-management platform</li>
-                    <li>Built features for a data-intensive application using TypeScript, React, and C</li>
-                    <li>Created an analysis suite for tracking weather effects on satellite signals</li>
-                    <li>Led the refactor of the company codebase into TypeScript and NestJS</li>
-                </ul>
-            </div>
-            <div class="experience-item">
-                <h3 class="job-title">Attorney</h3>
-                <p class="job-details">Multiple Companies • 09/2014 - 03/2020 • Multiple Locations</p>
-                <ul class="experience-list">
-                    <li>Researched legal questions and crafted effective oral and written arguments at Shook, Hardy & Bacon, Johnson County District Court, and Robinson Law LLC</li>
-                </ul>
-            </div>
-            
-            <h2 style="margin-top: 3rem">Skills</h2>
-            <div class="experience-item">
-                <div class="skills-grid">
-                    <div class="skills-category">
-                        <h3>Languages</h3>
-                        <ul class="skills-list">
-                            <li>
-                                C# 
-                                <div class="skill-rating">
-                                    <div class="skill-dot filled"></div>
-                                    <div class="skill-dot filled"></div>
-                                    <div class="skill-dot filled"></div>
-                                    <div class="skill-dot filled"></div>
-                                    <div class="skill-dot filled"></div>
-                                </div>
-                            </li>
-                            <li>
-                                JavaScript 
-                                <div class="skill-rating">
-                                    <div class="skill-dot filled"></div>
-                                    <div class="skill-dot filled"></div>
-                                    <div class="skill-dot filled"></div>
-                                    <div class="skill-dot filled"></div>
-                                    <div class="skill-dot filled"></div>
-                                </div>
-                            </li>
-                            <li>
-                                TypeScript 
-                                <div class="skill-rating">
-                                    <div class="skill-dot filled"></div>
-                                    <div class="skill-dot filled"></div>
-                                    <div class="skill-dot filled"></div>
-                                    <div class="skill-dot filled"></div>
-                                    <div class="skill-dot filled"></div>
-                                </div>
-                            </li>
-                            <li>
-                                HTML/CSS 
-                                <div class="skill-rating">
-                                    <div class="skill-dot filled"></div>
-                                    <div class="skill-dot filled"></div>
-                                    <div class="skill-dot filled"></div>
-                                    <div class="skill-dot filled"></div>
-                                    <div class="skill-dot filled"></div>
-                                </div>
-                            </li>
-                            <li>
-                                SQL 
-                                <div class="skill-rating">
-                                    <div class="skill-dot filled"></div>
-                                    <div class="skill-dot filled"></div>
-                                    <div class="skill-dot filled"></div>
-                                    <div class="skill-dot"></div>
-                                    <div class="skill-dot"></div>
-                                </div>
-                            </li>
-                            <li>
-                                C++ 
-                                <div class="skill-rating">
-                                    <div class="skill-dot filled"></div>
-                                    <div class="skill-dot filled"></div>
-                                    <div class="skill-dot filled"></div>
-                                    <div class="skill-dot"></div>
-                                    <div class="skill-dot"></div>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="skills-category">
-                        <h3>Frameworks & Tools</h3>
-                        <ul class="skills-list">
-                            <li>
-                                .NET 8 
-                                <div class="skill-rating">
-                                    <div class="skill-dot filled"></div>
-                                    <div class="skill-dot filled"></div>
-                                    <div class="skill-dot filled"></div>
-                                    <div class="skill-dot filled"></div>
-                                    <div class="skill-dot filled"></div>
-                                </div>
-                            </li>
-                            <li>
-                                Entity Framework 
-                                <div class="skill-rating">
-                                    <div class="skill-dot filled"></div>
-                                    <div class="skill-dot filled"></div>
-                                    <div class="skill-dot filled"></div>
-                                    <div class="skill-dot filled"></div>
-                                    <div class="skill-dot"></div>
-                                </div>
-                            </li>
-                            <li>
-                                Blazor 
-                                <div class="skill-rating">
-                                    <div class="skill-dot filled"></div>
-                                    <div class="skill-dot filled"></div>
-                                    <div class="skill-dot filled"></div>
-                                    <div class="skill-dot filled"></div>
-                                    <div class="skill-dot"></div>
-                                </div>
-                            </li>
-                            <li>
-                                React 
-                                <div class="skill-rating">
-                                    <div class="skill-dot filled"></div>
-                                    <div class="skill-dot filled"></div>
-                                    <div class="skill-dot filled"></div>
-                                    <div class="skill-dot filled"></div>
-                                    <div class="skill-dot"></div>
-                                </div>
-                            </li>
-                            <li>
-                                Docker 
-                                <div class="skill-rating">
-                                    <div class="skill-dot filled"></div>
-                                    <div class="skill-dot filled"></div>
-                                    <div class="skill-dot filled"></div>
-                                    <div class="skill-dot"></div>
-                                    <div class="skill-dot"></div>
-                                </div>
-                            </li>
-                            <li>
-                                NestJS 
-                                <div class="skill-rating">
-                                    <div class="skill-dot filled"></div>
-                                    <div class="skill-dot filled"></div>
-                                    <div class="skill-dot filled"></div>
-                                    <div class="skill-dot"></div>
-                                    <div class="skill-dot"></div>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            
-            <h2 style="margin-top: 3rem">Education</h2>
-            <div class="experience-item">
-                <h3 class="job-title">B.S. in Computer Science</h3>
-                <p class="job-details">Fort Hays State University • 05/2021</p>
-            </div>
-            <div class="experience-item">
-                <h3 class="job-title">Juris Doctor</h3>
-                <p class="job-details">The University
-            </div>
-            <div class="experience-item">
-                <h3>B.A. in Psychology</h3>
-                <p style="color: var(--secondary-color)">Bethel College • 05/2010</p>
-            </div>
+      <div class="container">
+        <h2>Experience</h2>
+        <div class="experience-item">
+          <h3 class="job-title">
+            Senior Software Engineer / Supervisor of Application Development
+          </h3>
+          <p class="job-details">INTRUST Bank • 3/24 - Present • Wichita, KS</p>
+          <ul class="experience-list">
+            <li>
+              Built a custom CRM system for managing bank products, saving
+              roughly $5 million in development, operational, and licensing
+              costs
+            </li>
+            <li>
+              Mentored junior engineers, developing best practices in coding,
+              issue tracking, and technology adoption
+            </li>
+            <li>
+              Starting in 11/24, supervised a three-person development team
+            </li>
+          </ul>
         </div>
+        <div class="experience-item">
+          <h3 class="job-title">Developer</h3>
+          <p class="job-details">INTRUST Bank • 7/22 - 3/24 • Wichita, KS</p>
+          <ul class="experience-list">
+            <li>
+              Led the development team's transition from .NET Framework to .NET
+              Core
+            </li>
+            <li>
+              Created a comprehensive UI component library for .NET Blazor
+            </li>
+            <li>Designed a backend framework for internal bank applications</li>
+            <li>
+              Deployed applications to combat check fraud, track employee
+              performance, streamline loan collections, and more
+            </li>
+            <li>
+              Spearheaded the development team's adoption of GitHub and Scrum
+            </li>
+          </ul>
+        </div>
+        <div class="experience-item">
+          <h3 class="job-title">Junior Software Engineer</h3>
+          <p class="job-details">LP Technologies • 6/21 - 7/22 • Wichita, KS</p>
+          <ul class="experience-list">
+            <li>
+              Designed, implemented, and deployed an inventory-management
+              platform
+            </li>
+            <li>
+              Built features for a data-intensive application using TypeScript,
+              React, and C
+            </li>
+            <li>
+              Created an analysis suite for tracking weather effects on
+              satellite signals
+            </li>
+            <li>
+              Led the refactor of the company codebase into TypeScript and
+              NestJS
+            </li>
+          </ul>
+        </div>
+        <div class="experience-item">
+          <h3 class="job-title">Attorney</h3>
+          <p class="job-details">
+            Multiple Companies • 9/14 - 3/20 • Multiple Locations
+          </p>
+          <ul class="experience-list">
+            <li>
+              Researched legal questions and crafted effective oral and written
+              arguments at Shook, Hardy & Bacon, Johnson County District Court,
+              and Robinson Law LLC
+            </li>
+          </ul>
+        </div>
+
+        <h2 style="margin-top: 3rem">Skills</h2>
+        <div class="experience-item">
+          <div class="skills-grid">
+            <div class="skills-category">
+              <h3>Languages</h3>
+              <ul class="skills-list">
+                <li>
+                  C#
+                  <div class="skill-rating">
+                    <div class="skill-dot filled"></div>
+                    <div class="skill-dot filled"></div>
+                    <div class="skill-dot filled"></div>
+                    <div class="skill-dot filled"></div>
+                    <div class="skill-dot filled"></div>
+                  </div>
+                </li>
+                <li>
+                  JavaScript
+                  <div class="skill-rating">
+                    <div class="skill-dot filled"></div>
+                    <div class="skill-dot filled"></div>
+                    <div class="skill-dot filled"></div>
+                    <div class="skill-dot filled"></div>
+                    <div class="skill-dot filled"></div>
+                  </div>
+                </li>
+                <li>
+                  TypeScript
+                  <div class="skill-rating">
+                    <div class="skill-dot filled"></div>
+                    <div class="skill-dot filled"></div>
+                    <div class="skill-dot filled"></div>
+                    <div class="skill-dot filled"></div>
+                    <div class="skill-dot filled"></div>
+                  </div>
+                </li>
+                <li>
+                  HTML/CSS
+                  <div class="skill-rating">
+                    <div class="skill-dot filled"></div>
+                    <div class="skill-dot filled"></div>
+                    <div class="skill-dot filled"></div>
+                    <div class="skill-dot filled"></div>
+                    <div class="skill-dot filled"></div>
+                  </div>
+                </li>
+                <li>
+                  SQL
+                  <div class="skill-rating">
+                    <div class="skill-dot filled"></div>
+                    <div class="skill-dot filled"></div>
+                    <div class="skill-dot filled"></div>
+                    <div class="skill-dot"></div>
+                    <div class="skill-dot"></div>
+                  </div>
+                </li>
+                <li>
+                  C++
+                  <div class="skill-rating">
+                    <div class="skill-dot filled"></div>
+                    <div class="skill-dot filled"></div>
+                    <div class="skill-dot filled"></div>
+                    <div class="skill-dot"></div>
+                    <div class="skill-dot"></div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="skills-category">
+              <h3>Frameworks & Tools</h3>
+              <ul class="skills-list">
+                <li>
+                  .NET 8
+                  <div class="skill-rating">
+                    <div class="skill-dot filled"></div>
+                    <div class="skill-dot filled"></div>
+                    <div class="skill-dot filled"></div>
+                    <div class="skill-dot filled"></div>
+                    <div class="skill-dot filled"></div>
+                  </div>
+                </li>
+                <li>
+                  Entity Framework
+                  <div class="skill-rating">
+                    <div class="skill-dot filled"></div>
+                    <div class="skill-dot filled"></div>
+                    <div class="skill-dot filled"></div>
+                    <div class="skill-dot filled"></div>
+                    <div class="skill-dot filled"></div>
+                  </div>
+                </li>
+                <li>
+                  Blazor
+                  <div class="skill-rating">
+                    <div class="skill-dot filled"></div>
+                    <div class="skill-dot filled"></div>
+                    <div class="skill-dot filled"></div>
+                    <div class="skill-dot filled"></div>
+                    <div class="skill-dot filled"></div>
+                  </div>
+                </li>
+                <li>
+                  React
+                  <div class="skill-rating">
+                    <div class="skill-dot filled"></div>
+                    <div class="skill-dot filled"></div>
+                    <div class="skill-dot filled"></div>
+                    <div class="skill-dot filled"></div>
+                    <div class="skill-dot"></div>
+                  </div>
+                </li>
+                <li>
+                  Docker
+                  <div class="skill-rating">
+                    <div class="skill-dot filled"></div>
+                    <div class="skill-dot filled"></div>
+                    <div class="skill-dot"></div>
+                    <div class="skill-dot"></div>
+                    <div class="skill-dot"></div>
+                  </div>
+                </li>
+                <li>
+                  NestJS
+                  <div class="skill-rating">
+                    <div class="skill-dot filled"></div>
+                    <div class="skill-dot filled"></div>
+                    <div class="skill-dot filled"></div>
+                    <div class="skill-dot"></div>
+                    <div class="skill-dot"></div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <h2 style="margin-top: 3rem">Education</h2>
+        <div class="experience-item">
+          <h3 class="job-title">B.S. in Computer Science</h3>
+          <p class="job-details">
+            Fort Hays State University, 5/21 - <em>summa cum laude</em>
+          </p>
+        </div>
+        <div class="experience-item">
+          <h3 class="job-title">Juris Doctor</h3>
+          <p class="job-details">
+            The University of Chicago, 6/14 - <em>with honors</em>
+          </p>
+        </div>
+
+        <div class="experience-item">
+          <h3 class="job-title">B.A. in Psychology</h3>
+          <p class="job-details">
+            Bethel College, KS, 5/10 - <em>summa cum laude</em>
+          </p>
+        </div>
+      </div>
     </section>
 
     <script>
-        // Intersection Observer for scroll animations
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                }
-            });
-        }, {
-            threshold: 0.1
-        });
+      // Intersection Observer for scroll animations
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+            }
+          });
+        },
+        {
+          threshold: 0.1,
+        }
+      );
 
-        // Observe all sections
-        document.querySelectorAll('section').forEach(section => {
-            observer.observe(section);
-        });
+      // Observe all sections
+      document.querySelectorAll('section').forEach((section) => {
+        observer.observe(section);
+      });
     </script>
-</body>
+  </body>
 </html>
