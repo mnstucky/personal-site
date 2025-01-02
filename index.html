@@ -5,9 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Portfolio</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/intersection-observer/1.0.0/intersection-observer.min.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Faculty+Glyphic&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Faculty+Glyphic&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="index.css" />
   </head>
   <body>
@@ -60,11 +63,11 @@
       </div>
     </section>
 
-    <div class="scroll-arrow">
+    <button class="scroll-arrow" aria-label="Scroll to next section">
       <svg class="scroll-icon" viewBox="0 0 24 24" fill="currentColor">
         <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" />
       </svg>
-    </div>
+    </button>
 
     <!-- Resume Section -->
     <section id="resume" class="resume">
@@ -324,6 +327,12 @@
       // Observe all sections
       document.querySelectorAll('section').forEach((section) => {
         observer.observe(section);
+      });
+
+      document.querySelector('.scroll-arrow').addEventListener('click', () => {
+        document.querySelector('#resume').scrollIntoView({
+          behavior: 'smooth',
+        });
       });
     </script>
   </body>
