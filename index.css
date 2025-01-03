@@ -218,6 +218,11 @@ section.visible {
   gap: 1rem;
 }
 
+.centered-social-link {
+  display: flex;
+  align-items: center;
+}
+
 .social-icon {
   width: 32px;
   height: 32px;
