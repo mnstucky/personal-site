@@ -102,7 +102,7 @@ export default function Home() {
             <div className='h-4 w-4 bg-emerald-500 rounded-lg'></div>
           </div>
           <p className='text-zinc-50'>Matt Stucky</p>
-          <div></div>
+          <div className='w-14'></div>
         </div>
         <textarea
           className='bg-zinc-900 text-sky-100 shadow-md rounded-b-md p-3 focus:outline-none w-full'
