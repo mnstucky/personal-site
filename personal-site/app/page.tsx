@@ -1,18 +1,27 @@
 'use client';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 export default function Home() {
   const [path, setPath] = useState('/');
-  let prompt = `@site-visitor ->${path} $ `;
-  const [terminal, setTerminal] = useState(prompt);
+  const [terminal, setTerminal] = useState('@site-visitor ->/ $ ');
+
+  const getPrompt = useCallback(
+    (newPath: string | undefined = undefined) => {
+      if (newPath === undefined) {
+        return `@site-visitor ->${path} $ `;
+      }
+      setPath(newPath);
+      return `@site-visitor ->${newPath} $ `;
+    },
+    [path]
+  );
 
   useEffect(() => {
     const handleKey = (event: KeyboardEvent) => {
       if (event.ctrlKey && event.key === 'l') {
         event.preventDefault();
-        setTerminal(prompt);
-        console.log('worked');
+        setTerminal(getPrompt());
         return false;
       }
     };
@@ -20,15 +29,7 @@ export default function Home() {
     window.addEventListener('keydown', handleKey);
 
     return () => window.removeEventListener('keydown', handleKey);
-  }, [prompt]);
-
-  function getPrompt(newPath: string | undefined = undefined) {
-    if (newPath === undefined) {
-      return `@site-visitor ->${path} $ `;
-    }
-    setPath(newPath);
-    return `@site-visitor ->${newPath} $ `;
-  }
+  }, [getPrompt]);
 
   function parseTerminal(str: string): void {
     const enterPressed = str.endsWith('\n');
@@ -48,29 +49,40 @@ export default function Home() {
     }
     if (command.startsWith('cd ')) {
       if (command.endsWith(' github')) {
-        window.open('https://github.com/mnstucky', '_blank', 'noopener,noreferrer');
+        window.open(
+          'https://github.com/mnstucky',
+          '_blank',
+          'noopener,noreferrer'
+        );
         setTerminal(str + getPrompt('\\github\\'));
         return;
       }
       if (command.endsWith(' linkedin')) {
-        window.open('https://www.linkedin.com/in/matt-stucky-66166339/', '_blank', 'noopener,noreferrer');
+        window.open(
+          'https://www.linkedin.com/in/matt-stucky-66166339/',
+          '_blank',
+          'noopener,noreferrer'
+        );
         setTerminal(str + getPrompt('\\linkedin\\'));
         return;
       }
-      if (path !== '/' && command.endsWith(' ..') || command.endsWith(' //')) {
+      if (
+        (path !== '/' && command.endsWith(' ..')) ||
+        command.endsWith(' //')
+      ) {
         setTerminal(str + getPrompt('\\'));
         return;
       }
       setTerminal(
         `${str}bash: cd: ${lastLine
           .substring(1)
-          .trim()}: No such file or directory\n${getPrompt()}`);
+          .trim()}: No such file or directory\n${getPrompt()}`
+      );
       return;
     }
     if (command.startsWith('echo ')) {
       const result = command.substring(command.indexOf('echo') + 4);
-      setTerminal(
-        `${str}${result.trim()}\n${getPrompt()}`);
+      setTerminal(`${str}${result.trim()}\n${getPrompt()}`);
       return;
     }
     setTerminal(
@@ -83,11 +95,21 @@ export default function Home() {
   return (
     <div className='grid grid-rows-[1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-mono)]'>
       <main className='row-start-1'>
+        <div className='h-50 bg-zinc-700 rounded-t-md shadow-md px-4 py-2 flex items-center justify-between'>
+          <div className='flex gap-2'>
+            <div className='h-4 w-4 bg-red-500 rounded-lg'></div>
+            <div className='h-4 w-4 bg-amber-300 rounded-lg'></div>
+            <div className='h-4 w-4 bg-emerald-500 rounded-lg'></div>
+          </div>
+          <p className='text-zinc-50'>Matt Stucky</p>
+          <div></div>
+        </div>
         <textarea
-          className='bg-slate-900 text-sky-200 shadow-md rounded-md p-3 focus:outline-none'
+          className='bg-zinc-900 text-sky-100 shadow-md rounded-b-md p-3 focus:outline-none w-full'
+          style={{ resize: 'none' }}
           value={terminal}
           rows={20}
-          cols={60}
+          cols={80}
           onChange={(e) => parseTerminal(e.target.value)}
         ></textarea>
       </main>
@@ -100,10 +122,10 @@ export default function Home() {
         >
           <Image
             aria-hidden
-            src='/file.svg'
-            alt='File icon'
-            width={16}
-            height={16}
+            src='/LI-In-Bug.png'
+            alt='LinkedIn icon'
+            width={18}
+            height={18}
           />
           LinkedIn
         </a>
@@ -116,9 +138,9 @@ export default function Home() {
           <Image
             aria-hidden
             src='/github-mark.svg'
-            alt='Globe icon'
-            width={16}
-            height={16}
+            alt='GitHub icon'
+            width={17}
+            height={17}
           />
           GitHub →
         </a>
