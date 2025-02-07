@@ -2,10 +2,18 @@
 import Image from 'next/image';
 import { useCallback, useEffect, useState } from 'react';
 
+type TerminalSegment = {
+  text: string;
+  color?: string;
+};
+
+type TerminalLine = TerminalSegment[];
+
 export default function Home() {
   const [path, setPath] = useState('/');
-  const [terminal, setTerminal] = useState('@site-visitor ->/ $ ');
+  const [terminalContent, setTerminalContent] = useState<TerminalLine[]>([]);
   const [tooltipVisible, setTooltipVisible] = useState(false);
+  const [inputValue, setInputValue] = useState('');
 
   const getPrompt = useCallback(
     (newPath: string | undefined = undefined) => {
@@ -28,104 +36,134 @@ export default function Home() {
 
   // Start cursor inside terminal window
   useEffect(() => {
-    const textarea = document.querySelector('textarea');
-    if (textarea) {
-      textarea.focus();
-      textarea.selectionStart = textarea.selectionEnd = terminal.length;
+    const input = document.querySelector('input');
+    if (input) {
+      input.focus();
     }
-  }, [terminal]);
+  }, []);
 
   // Setup keyboard hotkeys
   useEffect(() => {
     const handleKey = (event: KeyboardEvent) => {
       if (event.ctrlKey && event.key === 'l') {
         event.preventDefault();
-        setTerminal(getPrompt());
+        setTerminalContent([[]]);
+        setInputValue('');
         return false;
       }
     };
 
     window.addEventListener('keydown', handleKey);
-
     return () => window.removeEventListener('keydown', handleKey);
   }, [getPrompt]);
 
-  function parseTerminal(str: string): void {
+  const addLine = (segments: TerminalSegment[]) => {
+    setTerminalContent((prev) => [...prev, segments]);
+  };
+
+  const handleCommand = (command: string) => {
     setTooltipVisible(false);
-    const enterPressed = str.endsWith('\n');
-    const lines = str.split('\n');
-    const lastLine = lines[lines.length - (enterPressed ? 2 : 1)];
-    if (!lastLine.startsWith(getPrompt())) {
-      return;
-    }
-    if (!enterPressed) {
-      setTerminal(str);
-      return;
-    }
-    const command = lastLine.replace(getPrompt(), '');
+
     if (command.trim().toLowerCase() === 'help') {
-      setTerminal(`${str}Hi! I'm Matt, a senior software engineer. This site is meant to work a bit like a Unix terminal. Not your thing? Head to my LinkedIn and get in touch!
-        - - -
-Matt bash, version 1.0-release (x86_64-pc-linux-gnu)
-These shell commands are defined internally. Type 'help' to see this list.
-cd [dir] - go somewhere, e.g., cd linkedin to visit my LinkedIn
-ls - see what's available in your current location
-echo [arg ...] - print the arg to the screen
-${getPrompt()}`);
-      return;
-    }
-    if (command.trim().toLowerCase() === 'ls') {
-      setTerminal(`${str}github\tlinkedin\n${getPrompt()}`);
-      return;
-    }
-    if (command.toLowerCase().startsWith('cd ')) {
-      if (command.toLowerCase().endsWith(' github')) {
+      addLine([
+        {
+          text: "Hi! I'm Matt, a senior software engineer. ",
+          color: 'text-green-400',
+        },
+        {
+          text: 'This site is meant to work a bit like a Unix terminal. Not your thing? Head to my LinkedIn and get in touch!\n',
+          color: 'text-green-400',
+        },
+        {
+          text: 'Matt bash, version 1.0-release (x86_64-pc-linux-gnu)\n',
+          color: 'text-sky-100',
+        },
+        {
+          text: "These shell commands are defined internally. Type 'help' to see this list.\n",
+          color: 'text-sky-100',
+        },
+      ]);
+      addLine([
+        { text: 'cd [dir]', color: 'text-purple-400' },
+        {
+          text: ' - go somewhere, e.g., cd linkedin to visit my LinkedIn\n',
+          color: 'text-sky-100',
+        },
+      ]);
+      addLine([
+        { text: 'ls', color: 'text-purple-400' },
+        {
+          text: " - see what's available in your current location\n",
+          color: 'text-sky-100',
+        },
+      ]);
+      addLine([
+        { text: 'echo [arg ...]', color: 'text-purple-400' },
+        { text: ' - print the arg to the screen', color: 'text-sky-100' },
+      ]);
+    } else if (command.trim().toLowerCase() === 'ls') {
+      addLine([
+        { text: 'github', color: 'text-blue-400' },
+        { text: '\t', color: 'text-sky-100' },
+        { text: 'linkedin', color: 'text-blue-400' },
+      ]);
+    } else if (command.toLowerCase().startsWith('cd ')) {
+      const destination = command.substring(3).trim().toLowerCase();
+      if (destination === 'github') {
         window.open(
           'https://github.com/mnstucky',
           '_blank',
           'noopener,noreferrer'
         );
-        setTerminal(str + getPrompt('\\github\\'));
-        return;
-      }
-      if (command.toLowerCase().endsWith(' linkedin')) {
+        setPath('\\github\\');
+      } else if (destination === 'linkedin') {
         window.open(
           'https://www.linkedin.com/in/matt-stucky-66166339/',
           '_blank',
           'noopener,noreferrer'
         );
-        setTerminal(str + getPrompt('\\linkedin\\'));
-        return;
-      }
-      if (
-        (path !== '/' && command.endsWith(' ..')) ||
-        command.endsWith(' //')
+        setPath('\\linkedin\\');
+      } else if (
+        (path !== '/' && destination === '..') ||
+        destination === '//'
       ) {
-        setTerminal(str + getPrompt('\\'));
-        return;
+        setPath('\\');
+      } else {
+        addLine([
+          {
+            text: `bash: cd: ${destination}: No such file or directory`,
+            color: 'text-red-400',
+          },
+        ]);
       }
-      setTerminal(
-        `${str}bash: cd: ${lastLine
-          .substring(1)
-          .trim()}: No such file or directory\n${getPrompt()}`
-      );
-      return;
+    } else if (command.startsWith('echo ')) {
+      const result = command.substring(5);
+      addLine([{ text: result.trim(), color: 'text-green-300' }]);
+    } else {
+      addLine([
+        { text: `bash: ${command}: command not found`, color: 'text-red-400' },
+      ]);
     }
-    if (command.startsWith('echo ')) {
-      const result = command.substring(command.indexOf('echo') + 4);
-      setTerminal(`${str}${result.trim()}\n${getPrompt()}`);
-      return;
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(e.target.value);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      addLine([
+        { text: getPrompt(), color: 'text-sky-100' },
+        { text: inputValue, color: 'text-sky-100' },
+      ]);
+      handleCommand(inputValue);
+      setInputValue('');
     }
-    setTerminal(
-      `${str}bash: ${lastLine
-        .substring(1)
-        .trim()}: command not found\n${getPrompt()}`
-    );
-  }
+  };
 
   return (
     <div className='grid grid-rows-[1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-mono)]'>
-      <main className='row-start-1 relative'>
+      <main className='row-start-1 relative w-full max-w-3xl'>
         <div className='h-50 bg-zinc-700 rounded-t-md shadow-md px-4 py-2 flex items-center justify-between'>
           <div className='flex gap-2'>
             <div className='h-4 w-4 bg-red-500 rounded-lg'></div>
@@ -135,14 +173,29 @@ ${getPrompt()}`);
           <p className='text-zinc-50'>Matt Stucky</p>
           <div className='w-14'></div>
         </div>
-        <textarea
-          className='bg-zinc-900 text-sky-100 shadow-md rounded-b-md p-3 focus:outline-none w-full'
-          style={{ resize: 'none' }}
-          value={terminal}
-          rows={20}
-          cols={80}
-          onChange={(e) => parseTerminal(e.target.value)}
-        ></textarea>
+        <div className='bg-zinc-900 text-sky-100 shadow-md rounded-b-md p-3 min-h-[400px] relative'>
+          <div className='whitespace-pre-wrap'>
+            {terminalContent.map((line, i) => (
+              <div key={i} className='flex flex-wrap'>
+                {line.map((segment, j) => (
+                  <span key={`${i}-${j}`} className={segment.color}>
+                    {segment.text}
+                  </span>
+                ))}
+              </div>
+            ))}
+          </div>
+          <div className='flex'>
+            <span className='text-nowrap'>{getPrompt().trim()}&nbsp;</span>
+            <input
+              type='text'
+              value={inputValue}
+              onChange={handleInputChange}
+              onKeyDown={handleKeyDown}
+              className='bg-transparent border-none outline-none text-sky-100 w-full'
+            />
+          </div>
+        </div>
         <div
           className={`absolute top-1/2 flex justify-center w-full transition-opacity duration-1000 ${
             tooltipVisible ? 'opacity-100' : 'opacity-0'
