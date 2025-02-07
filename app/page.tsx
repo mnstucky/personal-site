@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from 'react';
 export default function Home() {
   const [path, setPath] = useState('/');
   const [terminal, setTerminal] = useState('@site-visitor ->/ $ ');
+  const [tooltipVisible, setTooltipVisible] = useState(false);
 
   const getPrompt = useCallback(
     (newPath: string | undefined = undefined) => {
@@ -17,6 +18,24 @@ export default function Home() {
     [path]
   );
 
+  // Start timer to fade in tooltip
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setTooltipVisible(true);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Start cursor inside terminal window
+  useEffect(() => {
+    const textarea = document.querySelector('textarea');
+    if (textarea) {
+      textarea.focus();
+      textarea.selectionStart = textarea.selectionEnd = terminal.length;
+    }
+  }, [terminal]);
+
+  // Setup keyboard hotkeys
   useEffect(() => {
     const handleKey = (event: KeyboardEvent) => {
       if (event.ctrlKey && event.key === 'l') {
@@ -32,6 +51,7 @@ export default function Home() {
   }, [getPrompt]);
 
   function parseTerminal(str: string): void {
+    setTooltipVisible(false);
     const enterPressed = str.endsWith('\n');
     const lines = str.split('\n');
     const lastLine = lines[lines.length - (enterPressed ? 2 : 1)];
@@ -43,12 +63,23 @@ export default function Home() {
       return;
     }
     const command = lastLine.replace(getPrompt(), '');
-    if (command.trim() === 'ls') {
+    if (command.trim().toLowerCase() === 'help') {
+      setTerminal(`${str}Hi! I'm Matt, a senior software engineer. This site is meant to work a bit like a Unix terminal. Not your thing? Head to my LinkedIn and get in touch!
+        - - -
+Matt bash, version 1.0-release (x86_64-pc-linux-gnu)
+These shell commands are defined internally. Type 'help' to see this list.
+cd [dir] - go somewhere, e.g., cd linkedin to visit my LinkedIn
+ls - see what's available in your current location
+echo [arg ...] - print the arg to the screen
+${getPrompt()}`);
+      return;
+    }
+    if (command.trim().toLowerCase() === 'ls') {
       setTerminal(`${str}github\tlinkedin\n${getPrompt()}`);
       return;
     }
-    if (command.startsWith('cd ')) {
-      if (command.endsWith(' github')) {
+    if (command.toLowerCase().startsWith('cd ')) {
+      if (command.toLowerCase().endsWith(' github')) {
         window.open(
           'https://github.com/mnstucky',
           '_blank',
@@ -57,7 +88,7 @@ export default function Home() {
         setTerminal(str + getPrompt('\\github\\'));
         return;
       }
-      if (command.endsWith(' linkedin')) {
+      if (command.toLowerCase().endsWith(' linkedin')) {
         window.open(
           'https://www.linkedin.com/in/matt-stucky-66166339/',
           '_blank',
@@ -94,7 +125,7 @@ export default function Home() {
 
   return (
     <div className='grid grid-rows-[1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-mono)]'>
-      <main className='row-start-1'>
+      <main className='row-start-1 relative'>
         <div className='h-50 bg-zinc-700 rounded-t-md shadow-md px-4 py-2 flex items-center justify-between'>
           <div className='flex gap-2'>
             <div className='h-4 w-4 bg-red-500 rounded-lg'></div>
@@ -112,6 +143,15 @@ export default function Home() {
           cols={80}
           onChange={(e) => parseTerminal(e.target.value)}
         ></textarea>
+        <div
+          className={`absolute top-1/2 flex justify-center w-full transition-opacity duration-1000 ${
+            tooltipVisible ? 'opacity-100' : 'opacity-0'
+          }`}
+        >
+          <p className='text-sm text-zinc-400'>
+            Stuck? Try typing &apos;help&apos; and pressing Enter.
+          </p>
+        </div>
       </main>
       <footer className='row-start-2 flex gap-6 flex-wrap items-center justify-center'>
         <a
