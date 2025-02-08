@@ -205,7 +205,7 @@ export default function Home() {
           relative 
           w-full 
           max-w-3xl 
-          max-h-[calc(100%-5rem)]
+          sm:max-h-[calc(100%-5rem)]
           min-h-[calc(100%-5rem)]
           h-full`}>
         <div className='h-50 bg-zinc-700 rounded-t-md shadow-md px-4 py-2 flex items-center justify-between'>
