@@ -15,6 +15,14 @@ export default function Home() {
   const [tooltipVisible, setTooltipVisible] = useState(false);
   const [inputValue, setInputValue] = useState('');
 
+  // Anchor terminal to the bottom on each render
+  useEffect(() => {
+    const input = document.querySelector('.terminal');
+    if (input) {
+      input.scrollTop = input.scrollHeight;
+    }
+  });
+
   const getPrompt = useCallback(
     (newPath: string | undefined = undefined) => {
       if (newPath === undefined) {
@@ -186,12 +194,20 @@ export default function Home() {
         justify-items-center 
         items-center
         min-h-screen 
+        max-h-screen 
         p-3
         pb-10
         sm:pt-20
         sm:pb-15
         font-[family-name:var(--font-geist-mono)]`}>
-      <main className='row-start-1 relative w-full max-w-3xl h-full'>
+      <main className={`
+          row-start-1 
+          relative 
+          w-full 
+          max-w-3xl 
+          max-h-[calc(100%-5rem)]
+          min-h-[calc(100%-5rem)]
+          h-full`}>
         <div className='h-50 bg-zinc-700 rounded-t-md shadow-md px-4 py-2 flex items-center justify-between'>
           <div className='flex gap-2'>
             <div className='h-4 w-4 bg-red-500 rounded-lg'></div>
@@ -208,7 +224,15 @@ export default function Home() {
           rounded-b-md 
           p-3 
           relative 
-          h-[calc(100%-5rem)]
+          overflow-y-a  [&::-webkit-scrollbar]:w-2
+          [&::-webkit-scrollbar-track]:bg-zinc-100
+          [&::-webkit-scrollbar-thumb]:bg-gray-300
+          dark:[&::-webkit-scrollbar-track]:bg-neutral-700
+          dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500uto
+          overflow-x-hidden
+          max-h-[calc(100%-5rem)]
+          min-h-[calc(100%-5rem)]
+          terminal
           `}>
           <div className='whitespace-pre-wrap'>
             {terminalContent.map((line, i) => (
