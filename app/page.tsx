@@ -49,12 +49,29 @@ export default function Home() {
         event.preventDefault();
         setTerminalContent([[]]);
         setInputValue('');
+        setTimeout(() => {
+          setTooltipVisible(true);
+        }, 2000);
         return false;
       }
     };
 
     window.addEventListener('keydown', handleKey);
-    return () => window.removeEventListener('keydown', handleKey);
+
+    const handleClick = () => {
+      const input = document.querySelector('input');
+      if (input) {
+        input.focus();
+      }
+    };
+
+    const main = document.querySelector('main');
+    main?.addEventListener('click', handleClick);
+
+    return () => {
+      window.removeEventListener('keydown', handleKey);
+      main?.removeEventListener('click', handleClick);
+    }
   }, [getPrompt]);
 
   const addLine = (segments: TerminalSegment[]) => {
@@ -147,6 +164,7 @@ export default function Home() {
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTooltipVisible(false);
     setInputValue(e.target.value);
   };
 
@@ -162,8 +180,18 @@ export default function Home() {
   };
 
   return (
-    <div className='grid grid-rows-[1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-mono)]'>
-      <main className='row-start-1 relative w-full max-w-3xl'>
+    <div className={`
+        grid 
+        grid-rows-[1fr_20px] 
+        justify-items-center 
+        items-center
+        min-h-screen 
+        p-3
+        pb-10
+        sm:pt-20
+        sm:pb-15
+        font-[family-name:var(--font-geist-mono)]`}>
+      <main className='row-start-1 relative w-full max-w-3xl h-full'>
         <div className='h-50 bg-zinc-700 rounded-t-md shadow-md px-4 py-2 flex items-center justify-between'>
           <div className='flex gap-2'>
             <div className='h-4 w-4 bg-red-500 rounded-lg'></div>
@@ -173,7 +201,15 @@ export default function Home() {
           <p className='text-zinc-50'>Matt Stucky</p>
           <div className='w-14'></div>
         </div>
-        <div className='bg-zinc-900 text-sky-100 shadow-md rounded-b-md p-3 min-h-[400px] relative'>
+        <div className={`
+          bg-zinc-900 
+          text-sky-100 
+          shadow-md 
+          rounded-b-md 
+          p-3 
+          relative 
+          h-[calc(100%-5rem)]
+          `}>
           <div className='whitespace-pre-wrap'>
             {terminalContent.map((line, i) => (
               <div key={i} className='flex flex-wrap'>
@@ -195,15 +231,14 @@ export default function Home() {
               className='bg-transparent border-none outline-none text-sky-100 w-full'
             />
           </div>
-        </div>
-        <div
-          className={`absolute top-1/2 flex justify-center w-full transition-opacity duration-1000 ${
-            tooltipVisible ? 'opacity-100' : 'opacity-0'
-          }`}
-        >
-          <p className='text-sm text-zinc-400'>
-            Stuck? Try typing &apos;help&apos; and pressing Enter.
-          </p>
+          <div
+            className={`absolute top-[calc(50%-2rem)] flex justify-center w-full transition-opacity duration-1000 ${tooltipVisible ? 'opacity-100' : 'opacity-0'
+              }`}
+          >
+            <p className='text-sm text-zinc-400 p-3'>
+              Stuck? Try typing &apos;help&apos; and pressing Enter.
+            </p>
+          </div>
         </div>
       </main>
       <footer className='row-start-2 flex gap-6 flex-wrap items-center justify-center'>
