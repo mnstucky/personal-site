@@ -145,8 +145,8 @@ export default function Home() {
         );
         setPath('\\linkedin\\');
       } else if (
-        (path !== '/' && destination === '..') ||
-        destination === '//'
+        (path !== '\\' && destination === '..') ||
+        destination === '/' || destination === '\\'
       ) {
         setPath('\\');
       } else {
