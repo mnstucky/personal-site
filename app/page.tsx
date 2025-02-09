@@ -9,11 +9,18 @@ type TerminalSegment = {
 
 type TerminalLine = TerminalSegment[];
 
+enum WindowStates {
+  Normal,
+  Maximized,
+  Closed
+}
+
 export default function Home() {
   const [path, setPath] = useState('/');
   const [terminalContent, setTerminalContent] = useState<TerminalLine[]>([]);
   const [tooltipVisible, setTooltipVisible] = useState(false);
   const [inputValue, setInputValue] = useState('');
+  const [windowState, setWindowState] = useState(WindowStates.Normal);
 
   // Anchor terminal to the bottom on each render
   useEffect(() => {
@@ -34,24 +41,20 @@ export default function Home() {
     [path]
   );
 
-  // Start timer to fade in tooltip
+  // Setup after first render
   useEffect(() => {
+    // Set timer to show tooltip after a 2 second delay
     const timer = setTimeout(() => {
       setTooltipVisible(true);
     }, 2000);
-    return () => clearTimeout(timer);
-  }, []);
 
-  // Start cursor inside terminal window
-  useEffect(() => {
+    // Focus the input
     const input = document.querySelector('input');
     if (input) {
       input.focus();
     }
-  }, []);
 
-  // Setup keyboard hotkeys
-  useEffect(() => {
+    // Handle CTRL+L to clear the terminal
     const handleKey = (event: KeyboardEvent) => {
       if (event.ctrlKey && event.key === 'l') {
         event.preventDefault();
@@ -66,6 +69,7 @@ export default function Home() {
 
     window.addEventListener('keydown', handleKey);
 
+    // Redirect focus to input on any clicks on the terminal
     const handleClick = () => {
       const input = document.querySelector('input');
       if (input) {
@@ -76,11 +80,13 @@ export default function Home() {
     const main = document.querySelector('main');
     main?.addEventListener('click', handleClick);
 
+    // Cleanup
     return () => {
       window.removeEventListener('keydown', handleKey);
       main?.removeEventListener('click', handleClick);
+      clearTimeout(timer);
     }
-  }, [getPrompt]);
+  }, []);
 
   const addLine = (segments: TerminalSegment[]) => {
     setTerminalContent((prev) => [...prev, segments]);
