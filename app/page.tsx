@@ -9,18 +9,11 @@ type TerminalSegment = {
 
 type TerminalLine = TerminalSegment[];
 
-enum WindowStates {
-  Normal,
-  Maximized,
-  Closed
-}
-
 export default function Home() {
   const [path, setPath] = useState('/');
   const [terminalContent, setTerminalContent] = useState<TerminalLine[]>([]);
   const [tooltipVisible, setTooltipVisible] = useState(false);
   const [inputValue, setInputValue] = useState('');
-  const [windowState, setWindowState] = useState(WindowStates.Normal);
 
   // Anchor terminal to the bottom on each render
   useEffect(() => {
@@ -60,9 +53,6 @@ export default function Home() {
         event.preventDefault();
         setTerminalContent([[]]);
         setInputValue('');
-        setTimeout(() => {
-          setTooltipVisible(true);
-        }, 2000);
         return false;
       }
     };
