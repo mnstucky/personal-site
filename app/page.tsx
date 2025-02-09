@@ -9,11 +9,18 @@ type TerminalSegment = {
 
 type TerminalLine = TerminalSegment[];
 
+enum WindowSizes {
+  Normal,
+  Maximized,
+  Minimized
+}
+
 export default function Home() {
   const [path, setPath] = useState('/');
   const [terminalContent, setTerminalContent] = useState<TerminalLine[]>([]);
   const [tooltipVisible, setTooltipVisible] = useState(false);
   const [inputValue, setInputValue] = useState('');
+  const [windowSize, setWindowSize] = useState(WindowSizes.Normal);
 
   // Anchor terminal to the bottom on each render
   useEffect(() => {
@@ -191,24 +198,26 @@ export default function Home() {
         items-center
         min-h-screen 
         max-h-screen 
-        p-3
+        ${windowSize === WindowSizes.Maximized ? 'p-0' : 'p-3'}
         pb-10
-        sm:pt-20
+        ${windowSize === WindowSizes.Maximized ? 'sm:pt-0' : 'pt-20'}
         sm:pb-15
         font-[family-name:var(--font-geist-mono)]`}>
       <main className={`
           row-start-1 
           relative 
           w-full 
-          max-w-3xl 
-          sm:max-h-[calc(100%-5rem)]
+          ${windowSize === WindowSizes.Maximized ? '' :
+          'sm:max-h-[calc(100%-5rem)] max-w-3xl'}
           min-h-[calc(100%-5rem)]
           h-full`}>
         <div className='h-50 bg-zinc-700 rounded-t-md shadow-md px-4 py-2 flex items-center justify-between'>
           <div className='flex gap-2'>
             <div className='h-4 w-4 bg-red-500 rounded-lg'></div>
-            <div className='h-4 w-4 bg-amber-300 rounded-lg'></div>
-            <div className='h-4 w-4 bg-emerald-500 rounded-lg'></div>
+            <div className='h-4 w-4 bg-amber-300 rounded-lg cursor-pointer'
+              onClick={() => setWindowSize(WindowSizes.Normal)}></div>
+            <div className='h-4 w-4 bg-emerald-500 rounded-lg cursor-pointer'
+              onClick={() => setWindowSize(WindowSizes.Maximized)}></div>
           </div>
           <p className='text-zinc-50'>Matt Stucky</p>
           <div className='w-14'></div>
