@@ -96,11 +96,11 @@ export default function Home() {
       addLine([
         {
           text: "Hi! I'm Matt, a senior software engineer. ",
-          color: 'text-green-400',
+          color: 'text-blue-400',
         },
         {
           text: 'This site is meant to work a bit like a Unix terminal. Not your thing? Head to my LinkedIn and get in touch!\n',
-          color: 'text-green-400',
+          color: 'text-blue-400',
         },
         {
           text: 'Matt bash, version 1.0-release (x86_64-pc-linux-gnu)\n',
@@ -129,11 +129,157 @@ export default function Home() {
         { text: 'echo [arg ...]', color: 'text-purple-400' },
         { text: ' - print the arg to the screen', color: 'text-sky-100' },
       ]);
+      addLine([
+        { text: 'cat [file]', color: 'text-purple-400' },
+        {
+          text: ' - print the file contents to the screen',
+          color: 'text-sky-100',
+        },
+      ]);
+    } else if (command.toLowerCase().startsWith('cat ')) {
+      const target = command.substring(4).trim().toLowerCase();
+      if (target === 'resume.txt') {
+        addLine([
+          {
+            text: `Matt N. Stucky - Senior Software Engineer`,
+            color: 'text-green-400',
+          },
+        ]);
+        addLine([
+          {
+            text: 'Senior software engineer with a proven track record of leading transformative projects in .NET, TypeScript, React, and C++.',
+            color: 'text-sky-100',
+          },
+        ]);
+        addLine([
+          {
+            text: 'Experience',
+            color: 'text-blue-400',
+          },
+        ]);
+        addLine([
+          {
+            text: 'Senior Software Engineer / Supervisor of Application Development',
+            color: 'text-purple-400',
+          },
+        ]);
+        addLine([
+          {
+            text: '03/2024 - Present | INTRUST Bank, Wichita, KS',
+            color: 'text-sky-200',
+          },
+        ]);
+        addLine([
+          {
+            text: '- Built a custom CRM system for managing bank products, saving roughly $5 million in development, operational, and licensing costs',
+            color: 'text-sky-100',
+          },
+        ]);
+        addLine([
+          {
+            text: '- Mentored junior engineers, developing best practices in coding, issue tracking, and technology adoption',
+            color: 'text-sky-100',
+          },
+        ]);
+        addLine([
+          {
+            text: '- Starting in 11/2024, supervised a three-person development team',
+            color: 'text-sky-100',
+          },
+        ]);
+        addLine([
+          {
+            text: 'Developer',
+            color: 'text-purple-400',
+          },
+        ]);
+        addLine([
+          {
+            text: '07/2022 - 03/2024 | INTRUST Bank, Wichita, KS',
+            color: 'text-sky-200',
+          },
+        ]);
+        addLine([
+          {
+            text: "- Led the development team's transition from .NET Framework to .NET Core",
+            color: 'text-sky-100',
+          },
+        ]);
+        addLine([
+          {
+            text: '- Created a comprehensive UI component library from .NET Blazor',
+            color: 'text-sky-100',
+          },
+        ]);
+        addLine([
+          {
+            text: '- Designed a backend framework for internal bank applications',
+            color: 'text-sky-100',
+          },
+        ]);
+        addLine([
+          {
+            text: '- Deployed applications to combat check fraud, track employee performance, streamline loan collections, monitor the return of bank cards, manage loans pledged to the Federal Reserve, create property appraisals, track the printing of debit cards, and coordinate customer investments',
+            color: 'text-sky-100',
+          },
+        ]);
+        addLine([
+          {
+            text: '- Developed a platform to manage application deployments, which included a notification system for users, error analytics, and dependency tracking',
+            color: 'text-sky-100',
+          },
+        ]);
+        addLine([
+          {
+            text: 'Junior Software Engineer',
+            color: 'text-purple-400',
+          },
+        ]);
+        addLine([
+          {
+            text: '06/2021 - 07/2022 | LP Technologies, Wichita, KS',
+            color: 'text-sky-200',
+          },
+        ]);
+        addLine([
+          {
+            text: '- Designed, implemented, and deployed an inventory-management platform',
+            color: 'text-sky-100',
+          },
+        ]);
+        addLine([
+          {
+            text: '- Built features for a data-intensive application using TypeScript, React, and C++',
+            color: 'text-sky-100',
+          },
+        ]);
+        addLine([
+          {
+            text: '- Created an analysis suite, complete with historical tools and live alerts, that allowed customers to track weather effects on satellite signals',
+            color: 'text-sky-100',
+          },
+        ]);
+        addLine([
+          {
+            text: '- Led the refactor of the company codebase into TypeScript and NestJS',
+            color: 'text-sky-100',
+          },
+        ]);
+      } else {
+        addLine([
+          {
+            text: `bash: cat: ${target}: No such file or directory`,
+            color: 'text-red-400',
+          },
+        ]);
+      }
     } else if (command.trim().toLowerCase() === 'ls') {
       addLine([
-        { text: 'github', color: 'text-blue-400' },
+        { text: 'github', color: 'text-green-400' },
         { text: '\t', color: 'text-sky-100' },
-        { text: 'linkedin', color: 'text-blue-400' },
+        { text: 'linkedin', color: 'text-green-400' },
+        { text: '\t', color: 'text-sky-100' },
+        { text: 'resume.txt', color: 'text-sky-100' },
       ]);
     } else if (command.toLowerCase().startsWith('cd ')) {
       const destination = command.substring(3).trim().toLowerCase();
@@ -217,6 +363,7 @@ export default function Home() {
           transition-all
           duration-300
           flex-1
+          overflow-y-a  
           h-full`}
       >
         <div className='h-50 bg-zinc-700 rounded-t-md shadow-md px-4 py-2 flex items-center justify-between'>
@@ -250,7 +397,7 @@ export default function Home() {
           dark:[&::-webkit-scrollbar-track]:bg-neutral-700
           dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500
           flex-1
-          h-[calc(100%-2.5rem)]
+          max-h-[calc(100%-2.5rem)]
           terminal
           `}
         >
