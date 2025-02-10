@@ -12,7 +12,7 @@ type TerminalLine = TerminalSegment[];
 enum WindowSizes {
   Normal,
   Maximized,
-  Minimized
+  Minimized,
 }
 
 export default function Home() {
@@ -82,7 +82,7 @@ export default function Home() {
       window.removeEventListener('keydown', handleKey);
       main?.removeEventListener('click', handleClick);
       clearTimeout(timer);
-    }
+    };
   }, []);
 
   const addLine = (segments: TerminalSegment[]) => {
@@ -153,7 +153,8 @@ export default function Home() {
         setPath('\\linkedin\\');
       } else if (
         (path !== '\\' && destination === '..') ||
-        destination === '/' || destination === '\\'
+        destination === '/' ||
+        destination === '\\'
       ) {
         setPath('\\');
       } else {
@@ -191,54 +192,68 @@ export default function Home() {
   };
 
   return (
-    <div className={`
+    <div
+      className={`
         grid 
-        grid-rows-[1fr_20px] 
         justify-items-center 
         items-center
         min-h-screen 
         max-h-screen 
-        ${windowSize === WindowSizes.Maximized ? 'p-0' : 'p-3'}
-        pb-10
-        ${windowSize === WindowSizes.Maximized ? 'sm:pt-0' : 'pt-20'}
-        sm:pb-15
-        font-[family-name:var(--font-geist-mono)]`}>
-      <main className={`
+        ${
+          windowSize === WindowSizes.Maximized
+            ? 'p-0 sm:pt-0 pb-0 grid-rows-[1fr_2.5rem]'
+            : 'p-3 pt-20 pb-10 grid-rows-[1fr_5rem]'
+        }
+        transition-all
+        duration-300
+        font-[family-name:var(--font-geist-mono)]`}
+    >
+      <main
+        className={`
           row-start-1 
           relative 
           w-full 
-          ${windowSize === WindowSizes.Maximized ? '' :
-          'sm:max-h-[calc(100%-5rem)] max-w-3xl'}
-          min-h-[calc(100%-5rem)]
-          h-full`}>
+          ${windowSize === WindowSizes.Maximized ? 'max-w-full' : 'max-w-4xl'}
+          transition-all
+          duration-300
+          flex-1
+          h-full`}
+      >
         <div className='h-50 bg-zinc-700 rounded-t-md shadow-md px-4 py-2 flex items-center justify-between'>
           <div className='flex gap-2'>
             <div className='h-4 w-4 bg-red-500 rounded-lg'></div>
-            <div className='h-4 w-4 bg-amber-300 rounded-lg cursor-pointer'
-              onClick={() => setWindowSize(WindowSizes.Normal)}></div>
-            <div className='h-4 w-4 bg-emerald-500 rounded-lg cursor-pointer'
-              onClick={() => setWindowSize(WindowSizes.Maximized)}></div>
+            <div
+              className='h-4 w-4 bg-amber-300 rounded-lg cursor-pointer hover:bg-amber-200'
+              onClick={() => setWindowSize(WindowSizes.Normal)}
+            ></div>
+            <div
+              className='h-4 w-4 bg-emerald-500 rounded-lg cursor-pointer hover:bg-emerald-400'
+              onClick={() => setWindowSize(WindowSizes.Maximized)}
+            ></div>
           </div>
           <p className='text-zinc-50'>Matt Stucky</p>
           <div className='w-14'></div>
         </div>
-        <div className={`
+        <div
+          className={`
           bg-zinc-900 
           text-sky-100 
           shadow-md 
           rounded-b-md 
           p-3 
           relative 
-          overflow-y-a  [&::-webkit-scrollbar]:w-2
+          overflow-y-a  
+          overflow-x-hidden
+          [&::-webkit-scrollbar]:w-2
           [&::-webkit-scrollbar-track]:bg-zinc-100
           [&::-webkit-scrollbar-thumb]:bg-gray-300
           dark:[&::-webkit-scrollbar-track]:bg-neutral-700
-          dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500uto
-          overflow-x-hidden
-          max-h-[calc(100%-5rem)]
-          min-h-[calc(100%-5rem)]
+          dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500
+          flex-1
+          h-[calc(100%-2.5rem)]
           terminal
-          `}>
+          `}
+        >
           <div className='whitespace-pre-wrap'>
             {terminalContent.map((line, i) => (
               <div key={i} className='flex flex-wrap'>
@@ -261,8 +276,9 @@ export default function Home() {
             />
           </div>
           <div
-            className={`absolute top-[calc(50%-2rem)] flex justify-center w-full transition-opacity duration-1000 ${tooltipVisible ? 'opacity-100' : 'opacity-0'
-              }`}
+            className={`absolute top-[calc(50%-2rem)] flex justify-center w-full transition-opacity duration-1000 ${
+              tooltipVisible ? 'opacity-100' : 'opacity-0'
+            }`}
           >
             <p className='text-sm text-zinc-400 p-3'>
               Stuck? Try typing &apos;help&apos; and pressing Enter.
