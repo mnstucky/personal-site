@@ -20,6 +20,13 @@ export const help = (addLine: (segments: TerminalSegment[]) => void) => {
     },
   ]);
   addLine([
+    { text: 'cat [file]', color: 'text-purple-400' },
+    {
+      text: ' - print the file contents to the screen',
+      color: 'text-sky-100',
+    },
+  ]);
+  addLine([
     { text: 'cd [dir]', color: 'text-purple-400' },
     {
       text: ' - go somewhere, e.g., cd linkedin to visit my LinkedIn\n',
@@ -27,9 +34,9 @@ export const help = (addLine: (segments: TerminalSegment[]) => void) => {
     },
   ]);
   addLine([
-    { text: 'ls', color: 'text-purple-400' },
+    { text: 'clear', color: 'text-purple-400' },
     {
-      text: " - see what's available in your current location\n",
+      text: ' - clear the terminal',
       color: 'text-sky-100',
     },
   ]);
@@ -38,9 +45,9 @@ export const help = (addLine: (segments: TerminalSegment[]) => void) => {
     { text: ' - print the arg to the screen', color: 'text-sky-100' },
   ]);
   addLine([
-    { text: 'cat [file]', color: 'text-purple-400' },
+    { text: 'ls', color: 'text-purple-400' },
     {
-      text: ' - print the file contents to the screen',
+      text: " - see what's available in your current location\n",
       color: 'text-sky-100',
     },
   ]);
