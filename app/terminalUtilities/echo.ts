@@ -1,9 +1,6 @@
-import { TerminalSegment } from '../types/terminalSegment';
+import { TerminalLine } from '../types/terminalLine';
 
-export const echo = (
-  command: string,
-  addLine: (segments: TerminalSegment[]) => void
-) => {
+export const echo = (command: string): TerminalLine[] => {
   const result = command.substring(5);
-  addLine([{ text: result.trim(), color: 'text-green-300' }]);
+  return [[{ text: result.trim(), color: 'text-green-300' }]];
 };

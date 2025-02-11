@@ -1,7 +1,6 @@
 'use client';
 import Image from 'next/image';
 import { useCallback, useEffect, useState } from 'react';
-import { TerminalSegment } from './types/terminalSegment';
 import { TerminalLine } from './types/terminalLine';
 import { WindowSizes } from './types/windowSizes';
 import { help } from './terminalUtilities/help';
@@ -9,7 +8,6 @@ import { cat } from './terminalUtilities/cat';
 import { ls } from './terminalUtilities/ls';
 import { cd } from './terminalUtilities/cd';
 import { echo } from './terminalUtilities/echo';
-import { clear } from './terminalUtilities/clear';
 
 export default function Home() {
   const [path, setPath] = useState('/');
@@ -54,7 +52,8 @@ export default function Home() {
     const handleKey = (event: KeyboardEvent) => {
       if (event.ctrlKey && event.key === 'l') {
         event.preventDefault();
-        clear(setTerminalContent, setInputValue);
+        setTerminalContent([[]]);
+        setInputValue('');
         return false;
       }
     };
@@ -69,39 +68,45 @@ export default function Home() {
       }
     };
 
-    const main = document.querySelector('main');
-    main?.addEventListener('click', handleClick);
+    const terminal = document.querySelector('.terminal');
+    terminal?.addEventListener('click', handleClick);
 
     // Cleanup
     return () => {
       window.removeEventListener('keydown', handleKey);
-      main?.removeEventListener('click', handleClick);
+      terminal?.removeEventListener('click', handleClick);
       clearTimeout(timer);
     };
   }, []);
 
-  const addLine = (segments: TerminalSegment[]) => {
-    setTerminalContent((prev) => [...prev, segments]);
+  const addLines = (lines: TerminalLine[]) => {
+    setTerminalContent((prev) => [...prev, ...lines]);
   };
 
   const handleCommand = (command: string) => {
     setTooltipVisible(false);
 
     if (command.trim().toLowerCase() === 'help') {
-      help(addLine);
+      addLines(help());
     } else if (command.toLowerCase().startsWith('cat ')) {
-      cat(command, addLine);
+      addLines(cat(command));
     } else if (command.trim().toLowerCase() === 'ls') {
-      ls(addLine);
+      addLines(ls());
     } else if (command.toLowerCase().startsWith('cd ')) {
-      cd(command, path, setPath, addLine);
+      addLines(cd(command, path, setPath));
     } else if (command.startsWith('echo ')) {
-      echo(command, addLine);
+      addLines(echo(command));
     } else if (command.trim().toLowerCase() === 'clear') {
-      clear(setTerminalContent, setInputValue);
+      setTerminalContent([[]]);
+      setInputValue('');
     } else {
-      addLine([
-        { text: `bash: ${command}: command not found`, color: 'text-red-400' },
+      addLines([
+        [
+          {
+            text: `bash: ${command}: command not found`,
+            color: 'text-red-400',
+          },
+        ],
       ]);
     }
   };
@@ -113,9 +118,11 @@ export default function Home() {
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      addLine([
-        { text: getPrompt(), color: 'text-sky-100' },
-        { text: inputValue, color: 'text-sky-100' },
+      addLines([
+        [
+          { text: getPrompt(), color: 'text-sky-100' },
+          { text: inputValue, color: 'text-sky-100' },
+        ],
       ]);
       handleCommand(inputValue);
       setInputValue('');

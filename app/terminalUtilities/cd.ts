@@ -1,11 +1,10 @@
-import { TerminalSegment } from '../types/terminalSegment';
+import { TerminalLine } from '../types/terminalLine';
 
 export const cd = (
   command: string,
   path: string,
-  setPath: (path: string) => void,
-  addLine: (segments: TerminalSegment[]) => void
-) => {
+  setPath: (path: string) => void
+): TerminalLine[] => {
   const destination = command.substring(3).trim().toLowerCase();
   if (destination === 'github') {
     window.open('https://github.com/mnstucky', '_blank', 'noopener,noreferrer');
@@ -24,11 +23,14 @@ export const cd = (
   ) {
     setPath('\\');
   } else {
-    addLine([
-      {
-        text: `bash: cd: ${destination}: No such file or directory`,
-        color: 'text-red-400',
-      },
-    ]);
+    return [
+      [
+        {
+          text: `bash: cd: ${destination}: No such file or directory`,
+          color: 'text-red-400',
+        },
+      ],
+    ];
   }
+  return [[]];
 };
