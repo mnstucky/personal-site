@@ -1,6 +1,9 @@
 import { TerminalLine } from '../types/terminalLine';
 
-export const ls = (): TerminalLine[] => {
+export const ls = (path: string): TerminalLine[] => {
+  if (path !== '/') {
+    return [[]];
+  }
   return [
     [
       { text: 'github', color: 'text-green-400' },

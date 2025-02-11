@@ -8,6 +8,7 @@ import { cat } from './terminalUtilities/cat';
 import { ls } from './terminalUtilities/ls';
 import { cd } from './terminalUtilities/cd';
 import { echo } from './terminalUtilities/echo';
+import { baseCommands, getCompletion } from './terminalUtilities/tabCompletion';
 
 export default function Home() {
   const [path, setPath] = useState('/');
@@ -85,16 +86,15 @@ export default function Home() {
 
   const handleCommand = (command: string) => {
     setTooltipVisible(false);
-
     if (command.trim().toLowerCase() === 'help') {
       addLines(help());
-    } else if (command.toLowerCase().startsWith('cat ')) {
+    } else if (command.toLowerCase().startsWith('cat')) {
       addLines(cat(command));
     } else if (command.trim().toLowerCase() === 'ls') {
-      addLines(ls());
-    } else if (command.toLowerCase().startsWith('cd ')) {
+      addLines(ls(path));
+    } else if (command.toLowerCase().startsWith('cd')) {
       addLines(cd(command, path, setPath));
-    } else if (command.startsWith('echo ')) {
+    } else if (command.startsWith('echo')) {
       addLines(echo(command));
     } else if (command.trim().toLowerCase() === 'clear') {
       setTerminalContent([[]]);
@@ -126,6 +126,28 @@ export default function Home() {
       ]);
       handleCommand(inputValue);
       setInputValue('');
+    }
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      let completion = inputValue;
+      if (inputValue.toLowerCase().startsWith('cat ')) {
+        completion =
+          'cat ' +
+          getCompletion(
+            inputValue.substring(4).trim().toLowerCase(),
+            ls(path).flatMap((line) => line.map((item) => item.text))
+          );
+      } else if (inputValue.toLowerCase().startsWith('cd ')) {
+        completion =
+          'cd ' +
+          getCompletion(
+            inputValue.substring(3).trim().toLowerCase(),
+            ls(path).flatMap((line) => line.map((item) => item.text))
+          );
+      } else {
+        completion = getCompletion(inputValue, baseCommands);
+      }
+      setInputValue(completion);
     }
   };
 

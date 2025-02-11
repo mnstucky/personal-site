@@ -131,11 +131,20 @@ export const cat = (command: string): TerminalLine[] => {
         },
       ],
     ];
+  } else if (target === 'github' || target === 'linkedin') {
+    return [
+      [
+        {
+          text: `cat: ${target}: Is a directory`,
+          color: 'text-red-400',
+        },
+      ],
+    ];
   } else {
     return [
       [
         {
-          text: `bash: cat: ${target}: No such file or directory`,
+          text: `cat: ${target}: No such file or directory`,
           color: 'text-red-400',
         },
       ],

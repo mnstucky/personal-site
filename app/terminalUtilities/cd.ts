@@ -8,20 +8,29 @@ export const cd = (
   const destination = command.substring(3).trim().toLowerCase();
   if (destination === 'github') {
     window.open('https://github.com/mnstucky', '_blank', 'noopener,noreferrer');
-    setPath('\\github\\');
+    setPath('/github/');
   } else if (destination === 'linkedin') {
     window.open(
       'https://www.linkedin.com/in/matt-stucky-66166339/',
       '_blank',
       'noopener,noreferrer'
     );
-    setPath('\\linkedin\\');
+    setPath('/linkedin/');
   } else if (
-    (path !== '\\' && destination === '..') ||
+    (path !== '/' && destination === '..') ||
     destination === '/' ||
     destination === '\\'
   ) {
-    setPath('\\');
+    setPath('/');
+  } else if (destination === 'resume.txt') {
+    return [
+      [
+        {
+          text: `bash: cd: ${destination}: Not a directory`,
+          color: 'text-red-400',
+        },
+      ],
+    ];
   } else {
     return [
       [
