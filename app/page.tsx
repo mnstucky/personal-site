@@ -17,6 +17,8 @@ export default function Home() {
   const [tooltipVisible, setTooltipVisible] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const [windowSize, setWindowSize] = useState(WindowSizes.Normal);
+  const [commandStack, setCommandStack] = useState<string[]>([]);
+  const [commandStackPos, setCommandStackPos] = useState(0);
 
   // Anchor terminal to the bottom on each render
   useEffect(() => {
@@ -87,6 +89,7 @@ export default function Home() {
 
   const handleCommand = (command: string) => {
     setTooltipVisible(false);
+    setCommandStack(commandStack.concat(command));
     const pipedCommands = command.split(' | ');
     let pipedOutput: TerminalLine[] = [];
     for (const pipedCommand of pipedCommands) {
@@ -140,6 +143,7 @@ export default function Home() {
       ]);
       handleCommand(inputValue);
       setInputValue('');
+      setCommandStackPos(0);
     }
     if (e.key === 'Tab') {
       e.preventDefault();
@@ -163,6 +167,15 @@ export default function Home() {
       }
       setInputValue(completion);
     }
+    if (e.key === 'ArrowUp') {
+      let pastCommandPos = commandStack.length - 1 - commandStackPos;
+      if (pastCommandPos < 0) {
+        pastCommandPos = 0;
+      }
+      const pastCommand = commandStack[pastCommandPos];
+        setCommandStackPos(commandStackPos + 1);
+      setInputValue(pastCommand);
+    } 
   };
 
   return (
