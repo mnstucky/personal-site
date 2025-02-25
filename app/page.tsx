@@ -22,9 +22,9 @@ export default function Home() {
 
   // Anchor terminal to the bottom on each render
   useEffect(() => {
-    const input = document.querySelector('.terminal');
-    if (input) {
-      input.scrollTop = input.scrollHeight;
+    const terminal = document.querySelector('.terminal');
+    if (terminal) {
+      terminal.scrollTop = terminal.scrollHeight;
     }
   });
 
@@ -173,9 +173,9 @@ export default function Home() {
         pastCommandPos = 0;
       }
       const pastCommand = commandStack[pastCommandPos];
-        setCommandStackPos(commandStackPos + 1);
+      setCommandStackPos(commandStackPos + 1);
       setInputValue(pastCommand);
-    } 
+    }
   };
 
   return (
