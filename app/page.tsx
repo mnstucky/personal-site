@@ -9,6 +9,7 @@ import { ls } from './terminalUtilities/ls';
 import { cd } from './terminalUtilities/cd';
 import { echo } from './terminalUtilities/echo';
 import { baseCommands, getCompletion } from './terminalUtilities/tabCompletion';
+import { grep } from './terminalUtilities/grep';
 
 export default function Home() {
   const [path, setPath] = useState('/');
@@ -86,28 +87,41 @@ export default function Home() {
 
   const handleCommand = (command: string) => {
     setTooltipVisible(false);
+    const pipedCommands = command.split(' | ');
+    let pipedOutput: TerminalLine[] = [];
+    for (const pipedCommand of pipedCommands) {
+      pipedOutput = getOutput(pipedCommand, pipedOutput);
+    }
+    addLines(pipedOutput);
+  };
+
+  const getOutput = (command: string, pipedInput: TerminalLine[]) => {
     if (command.trim().toLowerCase() === 'help') {
-      addLines(help());
+      return help();
     } else if (command.toLowerCase().startsWith('cat')) {
-      addLines(cat(command));
+      return cat(command);
     } else if (command.trim().toLowerCase() === 'ls') {
-      addLines(ls(path));
+      return ls(path);
     } else if (command.toLowerCase().startsWith('cd')) {
-      addLines(cd(command, path, setPath));
+      return cd(command, path, setPath);
     } else if (command.startsWith('echo')) {
-      addLines(echo(command));
+      return echo(command);
     } else if (command.trim().toLowerCase() === 'clear') {
       setTerminalContent([[]]);
       setInputValue('');
+      return [];
+    } else if (command.trim().toLowerCase().startsWith('grep')) {
+      const pattern = command.slice(command.indexOf('-E ') + 2).trim();
+      return grep(pipedInput, pattern);
     } else {
-      addLines([
+      return [
         [
           {
             text: `bash: ${command}: command not found`,
             color: 'text-red-400',
           },
         ],
-      ]);
+      ];
     }
   };
 

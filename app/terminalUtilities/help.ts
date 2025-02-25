@@ -46,6 +46,13 @@ export const help = (): TerminalLine[] => {
       { text: ' - print the arg to the screen', color: 'text-sky-100' },
     ],
     [
+      { text: 'grep [-E] [pattern]', color: 'text-purple-400' },
+      {
+        text: ' - matches the provided regular expression pattern against piped-in input, e.g., cat resume.txt | grep -E "software"',
+        color: 'text-sky-100',
+      },
+    ],
+    [
       { text: 'ls', color: 'text-purple-400' },
       {
         text: " - see what's available in your current location\n",
