@@ -245,7 +245,7 @@ export default function Home() {
         >
           <div className='whitespace-pre-wrap'>
             {terminalContent.map((line, i) => (
-              <div key={i} className='flex flex-wrap'>
+              <div key={i} className='flex flex-wrap min-h-[1em]'>
                 {line.map((segment, j) => (
                   <span key={`${i}-${j}`} className={segment.color}>
                     {segment.text}

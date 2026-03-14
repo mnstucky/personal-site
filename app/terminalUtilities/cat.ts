@@ -16,12 +16,42 @@ export const cat = (command: string): TerminalLine[] => {
           color: 'text-sky-100',
         },
       ],
+      [{ text: '', color: 'text-sky-100' }],
+      [{ text: '', color: 'text-sky-100' }],
       [
         {
           text: 'Experience',
           color: 'text-blue-400',
         },
       ],
+      [{ text: '', color: 'text-sky-100' }],
+      [{ text: '', color: 'text-sky-100' }],
+      [
+        {
+          text: 'Software Engineer',
+          color: 'text-purple-400',
+        },
+      ],
+      [
+        {
+          text: '03/2024 - Present | Quest Analytics, LLC',
+          color: 'text-sky-200',
+        },
+      ],
+      [
+        {
+          text: '- Led the architecting and development of AI-based customer offerings, delivering features ahead of schedule',
+          color: 'text-sky-100',
+        },
+      ],
+      [
+        {
+          text: '- Received "Value Moment Award" for exemplary engineering',
+          color: 'text-sky-100',
+        },
+      ],
+      [{ text: '', color: 'text-sky-100' }],
+      [{ text: '', color: 'text-sky-100' }],
       [
         {
           text: 'Senior Software Engineer / Supervisor of Application Development',
@@ -30,7 +60,7 @@ export const cat = (command: string): TerminalLine[] => {
       ],
       [
         {
-          text: '03/2024 - Present | INTRUST Bank, Wichita, KS',
+          text: '03/2024 - 03/2025 | INTRUST Bank, Wichita, KS',
           color: 'text-sky-200',
         },
       ],
@@ -52,6 +82,8 @@ export const cat = (command: string): TerminalLine[] => {
           color: 'text-sky-100',
         },
       ],
+      [{ text: '', color: 'text-sky-100' }],
+      [{ text: '', color: 'text-sky-100' }],
       [
         {
           text: 'Developer',
@@ -94,6 +126,8 @@ export const cat = (command: string): TerminalLine[] => {
           color: 'text-sky-100',
         },
       ],
+      [{ text: '', color: 'text-sky-100' }],
+      [{ text: '', color: 'text-sky-100' }],
       [
         {
           text: 'Junior Software Engineer',
