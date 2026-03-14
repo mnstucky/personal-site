@@ -2,6 +2,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { resumeData } from './data/resume';
 
 export default function Home() {
   const [scrolled, setScrolled] = useState(false);
@@ -94,7 +95,7 @@ export default function Home() {
           <p className='text-xs text-zinc-500 tracking-[0.3em] uppercase mb-4'>
             About
           </p>
-          <h2 className='text-4xl font-bold mb-10'>About me</h2>
+          <h2 className='relative inline-block text-4xl font-bold pb-4 mb-10 after:content-[""] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[5px] after:rounded-full after:bg-gradient-to-r after:from-violet-400 after:via-pink-300 after:to-orange-300'>About me</h2>
           <div className='space-y-6 text-zinc-400 leading-relaxed text-lg'>
             <p>
               I&apos;m a senior software engineer based in Wichita, KS with a
@@ -122,33 +123,11 @@ export default function Home() {
           <p className='text-xs text-zinc-500 tracking-[0.3em] uppercase mb-4'>
             Work
           </p>
-          <h2 className='text-4xl font-bold mb-10'>Selected experience</h2>
+          <h2 className='relative inline-block text-4xl font-bold pb-4 mb-10 after:content-[""] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[5px] after:rounded-full after:bg-gradient-to-r after:from-violet-400 after:via-pink-300 after:to-orange-300'>Experience</h2>
           <div className='space-y-4'>
-            {[
-              {
-                role: 'Software Engineer',
-                company: 'Quest Analytics, LLC',
-                period: '2024 – Present',
-                summary:
-                  'Leading architecture and development of AI-based customer offerings.',
-              },
-              {
-                role: 'Senior Software Engineer',
-                company: 'INTRUST Bank',
-                period: '2022 – 2025',
-                summary:
-                  'Built a custom CRM system, saving ~$5M in costs. Led a development team and drove the migration from .NET Framework to .NET Core.',
-              },
-              {
-                role: 'Junior Software Engineer',
-                company: 'LP Technologies',
-                period: '2021 – 2022',
-                summary:
-                  'Designed and deployed an inventory management platform. Built features for a data-intensive satellite analytics application.',
-              },
-            ].map((job) => (
+            {resumeData.experience.map((job) => (
               <div
-                key={job.company}
+                key={`${job.role}-${job.company}`}
                 className='group border border-zinc-800 hover:border-zinc-600 rounded-2xl p-6 transition-colors duration-300'
               >
                 <div className='flex items-start justify-between gap-4'>
@@ -162,9 +141,14 @@ export default function Home() {
                     {job.period}
                   </span>
                 </div>
-                <p className='text-zinc-400 text-sm leading-relaxed mt-4'>
-                  {job.summary}
-                </p>
+                <ul className='mt-4 space-y-1'>
+                  {job.bullets.map((bullet, i) => (
+                    <li key={i} className='text-zinc-400 text-sm leading-relaxed flex gap-2'>
+                      <span className='text-zinc-600 shrink-0'>–</span>
+                      {bullet}
+                    </li>
+                  ))}
+                </ul>
               </div>
             ))}
           </div>
@@ -172,7 +156,7 @@ export default function Home() {
 
         {/* Footer */}
         <footer className='border-t border-zinc-800 py-12'>
-          <div className='px-6 flex items-center justify-between text-zinc-600 text-sm'>
+          <div className='px-6 flex items-center justify-between text-zinc-400 text-sm'>
             <span>Matt Stucky</span>
             <div className='flex gap-6'>
               <a
