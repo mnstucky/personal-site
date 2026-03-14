@@ -4,15 +4,9 @@ export const grep = (
   input: TerminalLine[],
   pattern: string
 ): TerminalLine[] => {
-  const result: TerminalLine[] = [];
-  for (const line of input) {
-    for (const segment of line) {
-      if (matchPattern(segment.text, pattern)) {
-        result.push(line);
-      }
-    }
-  }
-  return result;
+  return input.filter(line =>
+    line.some(segment => matchPattern(segment.text, pattern))
+  );
 };
 
 function matchAtPosition(inputChar: string, pattern: string): boolean {
@@ -23,7 +17,7 @@ function matchAtPosition(inputChar: string, pattern: string): boolean {
   } else if (pattern === '\\d') {
     return inputChar >= '0' && inputChar <= '9';
   } else if (pattern === '\\w') {
-    return inputChar.toLowerCase() !== inputChar.toUpperCase();
+    return /[a-zA-Z0-9_]/.test(inputChar);
   } else if (pattern.startsWith('[^') && pattern.endsWith(']')) {
     const charactersToNotMatch = pattern.substring(2, pattern.length - 1);
     return !charactersToNotMatch.includes(inputChar);
@@ -35,120 +29,77 @@ function matchAtPosition(inputChar: string, pattern: string): boolean {
   }
 }
 
-function getPatternToMatch(pattern: string, patternPos: number) {
+function getPatternToMatch(pattern: string, patternPos: number): string {
   let patternToMatch = pattern[patternPos] ?? '';
   if (patternToMatch === '\\') {
     patternToMatch = pattern.substring(patternPos, patternPos + 2);
   } else if (patternToMatch === '[') {
     const endOfGroup = pattern.substring(patternPos).indexOf(']');
-    patternToMatch = pattern.substring(patternPos, endOfGroup + 1);
+    patternToMatch = pattern.substring(patternPos, patternPos + endOfGroup + 1);
   }
   return patternToMatch;
 }
 
-function getXOrMore(
-  pattern: string,
-  patternPos: number,
-  patternToMatch: string,
-  operator: string
-) {
-  if (pattern.length > patternPos + 1 && pattern[patternPos + 1] === operator) {
-    return patternToMatch;
-  }
-  return '';
-}
-
-function getStartingPatternPos(pattern: string) {
-  const startOfLine = pattern.startsWith('^');
-  return startOfLine ? 1 : 0;
-}
-
-function getStartingExtraPatternCharacters(pattern: string) {
-  const endOfLine = pattern.endsWith('$');
-  return endOfLine ? 1 : 0;
-}
-
-function matchProblemAtStartOfLine(pattern: string, matchAtPos: boolean) {
-  const startOfLine = pattern.startsWith('^');
-  if (startOfLine && !matchAtPos) {
-    return true;
-  }
-  return false;
-}
-
-function matchProblemAtEndOfLine(
-  pattern: string,
-  matchAtPos: boolean,
+function matchHere(
+  inputLine: string,
   inputPos: number,
-  inputLine: string
-) {
-  const endOfLine = pattern.endsWith('$');
-  if (endOfLine && !matchAtPos && inputPos === inputLine.length - 1) {
+  pattern: string,
+  patternPos: number
+): boolean {
+  if (patternPos >= pattern.length) return true;
+  if (pattern[patternPos] === '$' && patternPos === pattern.length - 1) {
+    return inputPos === inputLine.length;
+  }
+
+  const patternUnit = getPatternToMatch(pattern, patternPos);
+  const nextPatternPos = patternPos + patternUnit.length;
+
+  if (nextPatternPos < pattern.length && pattern[nextPatternPos] === '+') {
+    if (inputPos >= inputLine.length || !matchAtPosition(inputLine[inputPos], patternUnit)) {
+      return false;
+    }
+    let end = inputPos;
+    while (end < inputLine.length && matchAtPosition(inputLine[end], patternUnit)) {
+      end++;
+    }
+    for (let k = end; k > inputPos; k--) {
+      if (matchHere(inputLine, k, pattern, nextPatternPos + 1)) return true;
+    }
     return false;
   }
+
+  if (nextPatternPos < pattern.length && pattern[nextPatternPos] === '?') {
+    if (inputPos < inputLine.length && matchAtPosition(inputLine[inputPos], patternUnit)) {
+      if (matchHere(inputLine, inputPos + 1, pattern, nextPatternPos + 1)) return true;
+    }
+    return matchHere(inputLine, inputPos, pattern, nextPatternPos + 1);
+  }
+
+  if (inputPos < inputLine.length && matchAtPosition(inputLine[inputPos], patternUnit)) {
+    return matchHere(inputLine, inputPos + 1, pattern, nextPatternPos);
+  }
+
+  return false;
 }
 
 function matchPattern(inputLine: string, pattern: string): boolean {
   if (pattern.includes('|')) {
-    const pattern1 =
-      pattern.slice(0, pattern.indexOf('(')) +
-      pattern.slice(pattern.indexOf('(') + 1, pattern.indexOf('|')) +
-      pattern.slice(pattern.indexOf(')') + 1);
-    const pattern2 =
-      pattern.slice(0, pattern.indexOf('(')) +
-      pattern.slice(pattern.indexOf('|') + 1, pattern.indexOf(')')) +
-      pattern.slice(pattern.indexOf(')') + 1);
-    return (
-      matchPattern(inputLine, pattern1) || matchPattern(inputLine, pattern2)
-    );
+    const parenStart = pattern.indexOf('(');
+    const parenEnd = pattern.indexOf(')');
+    const pipePos = pattern.indexOf('|');
+    const prefix = pattern.slice(0, parenStart);
+    const suffix = pattern.slice(parenEnd + 1);
+    const alt1 = prefix + pattern.slice(parenStart + 1, pipePos) + suffix;
+    const alt2 = prefix + pattern.slice(pipePos + 1, parenEnd) + suffix;
+    return matchPattern(inputLine, alt1) || matchPattern(inputLine, alt2);
   }
-  return matchSubPattern(inputLine, pattern);
-}
 
-function matchSubPattern(inputLine: string, pattern: string): boolean {
-  let oneOrMore = '';
-  let inputPosAtStartOfOneOrMore = -1;
-  let patternPos = getStartingPatternPos(pattern);
-  let extraPatternCharacters = getStartingExtraPatternCharacters(pattern);
-  let matchAtPos = false;
-  for (let inputPos = 0; inputPos < inputLine.length; inputPos++) {
-    const patternToMatch = getPatternToMatch(pattern, patternPos);
-    const zeroOrMore = getXOrMore(pattern, patternPos, patternToMatch, '?');
-    matchAtPos = matchAtPosition(inputLine[inputPos], patternToMatch);
-    // If we've reached the end of a + or ? operator, move to the next part of the pattern
-    if (!matchAtPos && (oneOrMore || zeroOrMore)) {
-      inputPos -= 1;
-      patternPos += 2;
-      extraPatternCharacters += 1;
-    }
-    if (
-      matchProblemAtStartOfLine(pattern, matchAtPos) ||
-      matchProblemAtEndOfLine(pattern, matchAtPos, inputPos, inputLine)
-    ) {
-      return false;
-    }
-    // Track the start of a + pattern
-    const previousOneOrMore = oneOrMore;
-    oneOrMore = getXOrMore(pattern, patternPos, patternToMatch, '+');
-    if (!previousOneOrMore && oneOrMore) {
-      inputPosAtStartOfOneOrMore = inputPos;
-    }
-    // Move forward in the pattern to the next character
-    if (matchAtPos && !oneOrMore && !zeroOrMore) {
-      patternPos += patternToMatch.length;
-    }
-    // Backtrack if at the end of a + pattern
-    if (
-      oneOrMore &&
-      patternPos < pattern.length - extraPatternCharacters &&
-      inputPos === inputLine.length - 1
-    ) {
-      patternPos += 2;
-      inputPos = inputPosAtStartOfOneOrMore + 1;
-    }
+  if (pattern.startsWith('^')) {
+    return matchHere(inputLine, 0, pattern, 1);
   }
-  if (patternPos < pattern.length - extraPatternCharacters) {
-    return false;
+
+  for (let i = 0; i <= inputLine.length; i++) {
+    if (matchHere(inputLine, i, pattern, 0)) return true;
   }
-  return matchAtPos;
+  return false;
 }
