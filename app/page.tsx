@@ -1,6 +1,6 @@
 'use client';
 import Image from 'next/image';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { TerminalLine } from './types/terminalLine';
 import { WindowSizes } from './types/windowSizes';
 import { help } from './terminalUtilities/help';
@@ -19,6 +19,15 @@ export default function Home() {
   const [windowSize, setWindowSize] = useState(WindowSizes.Normal);
   const [commandStack, setCommandStack] = useState<string[]>([]);
   const [commandStackPos, setCommandStackPos] = useState(0);
+  const [dragPosition, setDragPosition] = useState<{ x: number; y: number } | null>(null);
+  const [fixedSize, setFixedSize] = useState<{ width: number; height: number } | null>(null);
+  const [isAnimatingToMaximized, setIsAnimatingToMaximized] = useState(false);
+  const [suppressTransition, setSuppressTransition] = useState(false);
+  const mainRef = useRef<HTMLElement>(null);
+  const isDragging = useRef(false);
+  const dragOffset = useRef({ x: 0, y: 0 });
+  const isResizing = useRef(false);
+  const resizeStart = useRef({ mouseX: 0, mouseY: 0, width: 0, height: 0 });
 
   // Anchor terminal to the bottom on each render
   useEffect(() => {
@@ -82,6 +91,85 @@ export default function Home() {
       clearTimeout(timer);
     };
   }, []);
+
+  const handleTitleBarMouseDown = useCallback((e: React.MouseEvent) => {
+    if (windowSize === WindowSizes.Maximized) return;
+    e.preventDefault();
+    const rect = mainRef.current!.getBoundingClientRect();
+    const startX = dragPosition?.x ?? rect.left;
+    const startY = dragPosition?.y ?? rect.top;
+    dragOffset.current = { x: e.clientX - startX, y: e.clientY - startY };
+    if (!dragPosition) {
+      setFixedSize({ width: rect.width, height: rect.height });
+      setDragPosition({ x: rect.left, y: rect.top });
+    }
+    isDragging.current = true;
+  }, [windowSize, dragPosition]);
+
+  const handleResizeMouseDown = useCallback((e: React.MouseEvent) => {
+    if (windowSize === WindowSizes.Maximized) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const rect = mainRef.current!.getBoundingClientRect();
+    resizeStart.current = { mouseX: e.clientX, mouseY: e.clientY, width: rect.width, height: rect.height };
+    if (!dragPosition) {
+      setDragPosition({ x: rect.left, y: rect.top });
+    }
+    setFixedSize({ width: rect.width, height: rect.height });
+    isResizing.current = true;
+  }, [windowSize, dragPosition]);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (isDragging.current) {
+        setDragPosition({ x: e.clientX - dragOffset.current.x, y: e.clientY - dragOffset.current.y });
+      }
+      if (isResizing.current) {
+        const newWidth = Math.max(320, resizeStart.current.width + (e.clientX - resizeStart.current.mouseX));
+        const newHeight = Math.max(200, resizeStart.current.height + (e.clientY - resizeStart.current.mouseY));
+        setFixedSize({ width: newWidth, height: newHeight });
+      }
+    };
+    const handleMouseUp = () => {
+      isDragging.current = false;
+      isResizing.current = false;
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (windowSize !== WindowSizes.Maximized) return;
+    if (!dragPosition && !fixedSize) return;
+    // Animate the fixed element to fullscreen before handing off to CSS layout.
+    // Double RAF ensures the transition style is committed to the DOM in frame N
+    // before the position change triggers it in frame N+1.
+    let timer: ReturnType<typeof setTimeout>;
+    const outer = requestAnimationFrame(() => {
+      setIsAnimatingToMaximized(true);
+      requestAnimationFrame(() => {
+        setDragPosition({ x: 0, y: 0 });
+        setFixedSize({ width: window.innerWidth, height: window.innerHeight });
+        timer = setTimeout(() => {
+          // Suppress transition for one frame so the CSS layout handoff
+          // is instantaneous — no bounce from the height difference.
+          setSuppressTransition(true);
+          setIsAnimatingToMaximized(false);
+          setDragPosition(null);
+          setFixedSize(null);
+          requestAnimationFrame(() => setSuppressTransition(false));
+        }, 320);
+      });
+    });
+    return () => {
+      cancelAnimationFrame(outer);
+      clearTimeout(timer);
+    };
+  }, [windowSize]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const addLines = (lines: TerminalLine[]) => {
     setTerminalContent((prev) => [...prev, ...lines]);
@@ -196,18 +284,29 @@ export default function Home() {
         font-[family-name:var(--font-geist-mono)]`}
     >
       <main
+        ref={mainRef}
         className={`
-          row-start-1 
-          relative 
-          w-full 
+          row-start-1
+          relative
+          w-full
           ${windowSize === WindowSizes.Maximized ? 'max-w-full' : 'max-w-4xl'}
-          transition-all
-          duration-300
+          ${!dragPosition && !suppressTransition ? 'transition-all duration-300' : ''}
           flex-1
-          overflow-y-auto  
+          overflow-y-auto
           h-full`}
+        style={dragPosition && fixedSize ? {
+          position: 'fixed',
+          left: dragPosition.x,
+          top: dragPosition.y,
+          width: fixedSize.width,
+          height: fixedSize.height,
+          transition: isAnimatingToMaximized ? 'all 300ms' : undefined,
+        } : undefined}
       >
-        <div className='h-50 bg-zinc-700 rounded-t-md shadow-md px-4 py-2 flex items-center justify-between'>
+        <div
+          className={`h-50 bg-zinc-700 rounded-t-md shadow-md px-4 py-2 flex items-center justify-between ${windowSize !== WindowSizes.Maximized ? 'cursor-grab' : ''}`}
+          onMouseDown={handleTitleBarMouseDown}
+        >
           <div className='flex gap-2'>
             <div className='h-4 w-4 bg-red-500 rounded-lg'></div>
             <div
@@ -280,6 +379,17 @@ export default function Home() {
             </p>
           </div>
         </div>
+        {windowSize !== WindowSizes.Maximized && (
+          <div
+            className='absolute bottom-0 right-0 w-4 h-4 cursor-nwse-resize'
+            onMouseDown={handleResizeMouseDown}
+          >
+            <svg width="10" height="10" viewBox="0 0 10 10" className='absolute bottom-1 right-1 text-zinc-500 opacity-50 hover:opacity-100'>
+              <line x1="2" y1="10" x2="10" y2="2" stroke="currentColor" strokeWidth="1.5" />
+              <line x1="6" y1="10" x2="10" y2="6" stroke="currentColor" strokeWidth="1.5" />
+            </svg>
+          </div>
+        )}
       </main>
       <footer className='row-start-2 flex gap-6 flex-wrap items-center justify-center'>
         <a
