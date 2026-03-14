@@ -39,6 +39,28 @@ export default function Home() {
     [path]
   );
 
+  const handleTitleBarMouseDown = useCallback((e: React.MouseEvent) => {
+    if (windowSize === WindowSizes.Maximized) return;
+    e.preventDefault();
+    const rect = mainRef.current!.getBoundingClientRect();
+    dragOffset.current = {
+      x: e.clientX - (dragPosition?.x ?? rect.left),
+      y: e.clientY - (dragPosition?.y ?? rect.top),
+    };
+    dispatch({ type: 'INIT_DRAG', x: rect.left, y: rect.top, width: rect.width, height: rect.height });
+    isDragging.current = true;
+  }, [windowSize, dragPosition]);
+
+  const handleResizeMouseDown = useCallback((e: React.MouseEvent) => {
+    if (windowSize === WindowSizes.Maximized) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const rect = mainRef.current!.getBoundingClientRect();
+    resizeStart.current = { mouseX: e.clientX, mouseY: e.clientY, width: rect.width, height: rect.height };
+    dispatch({ type: 'INIT_RESIZE', x: rect.left, y: rect.top, width: rect.width, height: rect.height });
+    isResizing.current = true;
+  }, [windowSize]);
+
   // Setup after first render
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -64,36 +86,6 @@ export default function Home() {
     const terminal = document.querySelector('.terminal');
     terminal?.addEventListener('click', handleClick);
 
-    return () => {
-      window.removeEventListener('keydown', handleKey);
-      terminal?.removeEventListener('click', handleClick);
-      clearTimeout(timer);
-    };
-  }, []);
-
-  const handleTitleBarMouseDown = useCallback((e: React.MouseEvent) => {
-    if (windowSize === WindowSizes.Maximized) return;
-    e.preventDefault();
-    const rect = mainRef.current!.getBoundingClientRect();
-    dragOffset.current = {
-      x: e.clientX - (dragPosition?.x ?? rect.left),
-      y: e.clientY - (dragPosition?.y ?? rect.top),
-    };
-    dispatch({ type: 'INIT_DRAG', x: rect.left, y: rect.top, width: rect.width, height: rect.height });
-    isDragging.current = true;
-  }, [windowSize, dragPosition]);
-
-  const handleResizeMouseDown = useCallback((e: React.MouseEvent) => {
-    if (windowSize === WindowSizes.Maximized) return;
-    e.preventDefault();
-    e.stopPropagation();
-    const rect = mainRef.current!.getBoundingClientRect();
-    resizeStart.current = { mouseX: e.clientX, mouseY: e.clientY, width: rect.width, height: rect.height };
-    dispatch({ type: 'INIT_RESIZE', x: rect.left, y: rect.top, width: rect.width, height: rect.height });
-    isResizing.current = true;
-  }, [windowSize]);
-
-  useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (isDragging.current) {
         dispatch({ type: 'UPDATE_DRAG', x: e.clientX - dragOffset.current.x, y: e.clientY - dragOffset.current.y });
@@ -112,7 +104,11 @@ export default function Home() {
     };
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseup', handleMouseUp);
+
     return () => {
+      clearTimeout(timer);
+      window.removeEventListener('keydown', handleKey);
+      terminal?.removeEventListener('click', handleClick);
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
