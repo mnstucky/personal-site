@@ -46,7 +46,7 @@ export default function Home() {
       {/* Content container */}
       <div className='w-full lg:max-w-[60%] mx-auto'>
         {/* Hero */}
-        <section className='min-h-screen flex flex-col lg:flex-row items-center justify-center gap-16 px-12'>
+        <section className='min-h-screen flex flex-col lg:flex-row items-center justify-center gap-16 px-12 pt-24 lg:pt-0'>
           {/* Text */}
           <div className='flex flex-col items-center text-center lg:items-start lg:text-left'>
             <p className='text-xs text-zinc-500 tracking-[0.3em] uppercase mb-6'>
