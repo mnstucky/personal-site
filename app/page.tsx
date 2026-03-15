@@ -157,7 +157,6 @@ export default function Home() {
         {/* Footer */}
         <footer className='border-t border-zinc-800 py-12'>
           <div className='px-6 flex items-center justify-between text-zinc-400 text-sm'>
-            <span>Matt Stucky</span>
             <div className='flex gap-6'>
               <a
                 href='https://www.linkedin.com/in/matt-stucky-66166339/'
