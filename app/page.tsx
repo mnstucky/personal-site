@@ -130,14 +130,14 @@ export default function Home() {
                 key={`${job.role}-${job.company}`}
                 className='group border border-zinc-800 hover:border-zinc-600 rounded-2xl p-6 transition-colors duration-300'
               >
-                <div className='flex items-start justify-between gap-4'>
+                <div className='flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 sm:gap-4'>
                   <div>
                     <h3 className='text-lg font-semibold text-zinc-100'>
                       {job.role}
                     </h3>
                     <p className='text-zinc-500 text-sm mt-1'>{job.company}</p>
                   </div>
-                  <span className='text-xs text-zinc-600 whitespace-nowrap mt-1'>
+                  <span className='text-xs text-zinc-600 whitespace-nowrap sm:mt-1'>
                     {job.period}
                   </span>
                 </div>
@@ -156,7 +156,7 @@ export default function Home() {
 
         {/* Footer */}
         <footer className='border-t border-zinc-800 py-12'>
-          <div className='px-6 flex items-center justify-between text-zinc-400 text-sm'>
+          <div className='px-6 flex items-center justify-center text-zinc-400 text-sm'>
             <div className='flex gap-6'>
               <a
                 href='https://www.linkedin.com/in/matt-stucky-66166339/'
